@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "hbs": "^4.2.0",
+    "joi": "^17.12.3",
+    "mogoose": "^0.0.1-security",
+    "mongo-sanitize": "^1.1.0",
+    "mongoose": "^8.3.1",
+    "mongoose-slug-plugin": "^2.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "chai": "^5.1.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-mocha": "^10.4.1",
+    "mocha": "^10.4.0",
+    "nodemon": "^3.1.0"
+  },
+  "name": "final-project-natty6418",
+  "description": "The content below is an example project proposal / requirements document. Replace the text below the lines marked \"__TODO__\" with details specific to your project. Remove the \"TODO\" lines.",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

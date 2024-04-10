@@ -37,7 +37,7 @@ module.exports = {
         'func-call-spacing': ['error'],
         'no-lonely-if': ['error'],
         'array-bracket-spacing': ['error'],
-
+        'no-unused-vars': ['warn'],
         'no-console': ['off'],
     }
 };
