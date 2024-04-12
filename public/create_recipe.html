@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Recipe - Epic Eats</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <script src="./js/create.js" type="module"></script>
+    <header>
+      <h1>Epic Eats</h1>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/feed">Feed</a></li>
+          <li><a href="/create">Create Recipe</a></li>
+          <li><a href="/profile">Profile</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <h2>Create Your Recipe</h2>
+      <form id="recipe-form" method="POST" action="">
+        <div class="form-group">
+          <label for="title">Recipe Title</label>
+          <input type="text" id="title" name="title" required />
+        </div>
+        <div class="form-group" id="ingredients-section">
+          <label>Ingredients</label>
+          <div class="ingredient-item">
+            <input
+              type="text"
+              name="ingredient[]"
+              placeholder="Ingredient"
+              required
+            />
+            <input
+              type="text"
+              name="quantity[]"
+              placeholder="Quantity"
+              required
+            />
+            <button type="button" class="add-ingredient">+</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="instructions">Instructions</label>
+          <textarea
+            id="instructions"
+            name="instructions"
+            rows="8"
+            required
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="image">Recipe Image (URL)</label>
+          <input type="url" id="image" name="recipe-img" />
+        </div>
+        <button type="submit" id="submit-recipe">Submit Recipe</button>
+      </form>
+    </main>
+    <footer>
+      <p>&copy; 2024 Epic Eats. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

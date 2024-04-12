@@ -22,7 +22,6 @@ const recipeSchema = new Schema({
             createdAt: {type: Date, required: true}
         })
       },
-      category: {type: String, "enum": ["breakfast", "lunch", "dinner", "dessert"]},
       createdAt: {type: Date, required: true},
       image: {type: String}
 });
@@ -32,7 +31,6 @@ function validateRecipe(recipe){
         title: joi.string().required(),
         ingredients: joi.array().required(),
         instructions: joi.string().required(),
-        category: joi.string().required(),
         image: joi.string()
     });
     return schema.validate(recipe);

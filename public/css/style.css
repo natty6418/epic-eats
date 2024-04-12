@@ -19,6 +19,14 @@ header {
     padding-top: 20px;
     padding-bottom: 20px;
     margin-bottom: 20px;
+    width: 75%;
+    margin: 0 auto;
+}
+main{
+    width: 75%;
+    margin: 0 auto;
+    /* justify-content: center; */
+    /* text-align: center; */
 }
 
 header h1, nav ul {
@@ -75,17 +83,24 @@ nav ul li a {
 }
 
 .recipe-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
+    /* background-color: #fff; */
+    /* border: 1px solid #ddd; */
     margin-bottom: 20px;
     padding: 20px;
     border-radius: 5px;
+    width: fit-content;
+    margin: 20px auto;
+    text-align: center;
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+    border-bottom: 1px solid #ddd;
 }
 
 .recipe-image {
+    /* width: 400px; */
     width: 100%;
     height: auto;
     border-radius: 5px;
+    object-fit: cover;
 }
 
 .recipe-card h3 {
@@ -98,7 +113,7 @@ nav ul li a {
     color: #666;
 }
 
-.recipe-actions {
+/* .recipe-actions {
     margin-top: 20px;
     text-align: center;
 }
@@ -115,8 +130,64 @@ nav ul li a {
 
 .recipe-actions button:hover {
     opacity: 0.9;
+} */
+.recipe-feed{
+    width: 50%;
+    margin: 0 auto;
+    /* border: 1px solid #ddd; */
 }
-
+.ingredients-list {
+    padding: 0;
+    list-style-type: none;
+    margin-top: 20px;
+    border-top: 2px solid #eee;
+    padding-top: 15px;
+  }
+  
+  .ingredients-list li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .ingredients-list li::before {
+    content: '•';
+    color: #ff686b;
+    font-weight: bold;
+    display: inline-block; 
+    width: 1em;
+    margin-left: -1em;
+  }
+  
+  .recipe-instructions {
+    color: #333;
+    font-size: 16px;
+    margin-top: 20px;
+    border-top: 2px solid #eee;
+    padding-top: 15px;
+  }
+  
+  .recipe-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .recipe-actions button {
+    background-color: #ff686b;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .recipe-actions button:hover {
+    background-color: #e05558;
+  }
 footer {
     text-align: center;
     margin-top: 20px;
@@ -209,13 +280,13 @@ button[type="submit"]:hover {
     margin-top: 20px;
 }
 
-.recipe-card {
+/* .recipe-card {
     background-color: #fff;
     border: 1px solid #ddd;
     padding: 20px;
     border-radius: 5px;
     text-align: center;
-}
+} */
 .form-container {
     max-width: 400px;
     margin: 0 auto;
@@ -337,4 +408,17 @@ button[type="submit"]:hover {
 #saved-recipes-link h3 a {
     color: #5cb85c;
     text-decoration: none;
+}
+.ingredient-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ingredient-item input {
+    flex-grow: 1;
+}
+
+.add-ingredient, .remove-ingredient {
+    padding: 0 5px;
 }

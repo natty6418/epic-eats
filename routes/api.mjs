@@ -29,9 +29,9 @@ router.get('/profile', auth, async (req, res) => {
 router.post('/register', async (req, res) => {
   const {username, email, password} = req.body;
   const {error} = validateUser({username, email, password});
-  if(error) return res.status(400).send(error.details[0].message);
+  if(error) return res.status(400).send({error: error.details[0].message});
   let user = await User.findOne({email});
-  if(user) return res.status(400).send('User already registered');
+  if(user) return res.status(400).send({error: 'User already registered. Please login instead.'});
   user = new User({username, email, password});
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
@@ -45,7 +45,7 @@ router.post('/login', async (req, res) => {
   const user = await User.findOne({email});
   if (!user) return res.status(400).send({error: 'Invalid email or password'});
   const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) return res.status(400).send('Invalid email or password');
+  if (!validPassword) return res.status(400).send({error: 'Invalid email or password'});
   req.session.user_id = user._id;
   res.send({user: user.username, email: user.email});
 });
@@ -53,7 +53,8 @@ router.post('/login', async (req, res) => {
 router.post('/recipe', auth, async (req, res) => {
   const user_id = req.session.user_id;
   const {error} = validateRecipe({...req.body});
-  if(error) return res.status(400).send(error.details[0].message);
+  if(error) return res.status(400).send({error: error.details[0].message});
+  console.log(req.body);
   const recipe = new Recipe({...req.body, userId: user_id, createdAt: new Date()});
   await recipe.save();
   res.send(recipe);
