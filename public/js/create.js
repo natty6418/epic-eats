@@ -32,7 +32,7 @@ async function handleSubmit(evt){
         window.location.href = '/feed';
     } else {
         console.log(json);
-        const form = document.getElementById('create-recipe-form');
+        const form = document.getElementById('recipe-form');
         const error = document.createElement('p');
         error.textContent = json.error;
         form.appendChild(error);
