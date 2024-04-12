@@ -36,3 +36,5 @@ app.get('/profile', (req, res) => {
 });
 app.listen(process.env.PORT ?? 3000);
 console.log('Server started on port 3000');
+
+//linserv1.cims.nyu.edu... port 21056

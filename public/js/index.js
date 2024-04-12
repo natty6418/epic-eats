@@ -81,3 +81,17 @@ login_btn.addEventListener('click', (evt) => login(evt));
 
 const register_btn = document.getElementById('register-btn');
 register_btn.addEventListener('click', (evt) => register(evt));
+
+const login_tag = document.getElementById('login-tag');
+login_tag.addEventListener('click', (evt) => {
+    const register_form = document.getElementById('register-form-container');
+    register_form.classList.toggle('off');
+    load_login_form(evt)
+});
+
+const register_tag = document.getElementById('register-tag');
+register_tag.addEventListener('click', (evt) => {
+    const login_form = document.getElementById('login-form-container');
+    login_form.classList.toggle('off');
+    load_register_form(evt)
+});
