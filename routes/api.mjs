@@ -2,7 +2,7 @@ import { Router } from 'express'
 import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import {Recipe, validateRecipe} from '../models/recipe.mjs';
 import {User, validateUser} from '../models/user.mjs';
 import auth from '../middleware/auth.mjs';

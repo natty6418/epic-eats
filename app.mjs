@@ -35,6 +35,6 @@ app.get('/profile', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 app.listen(process.env.PORT ?? 3000);
-console.log('Server started on port 3000');
+console.log(`Server running on port ${process.env.PORT}`);
 
 //linserv1.cims.nyu.edu... port 21056
