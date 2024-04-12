@@ -31,5 +31,8 @@ app.get('/feed', (req, res) => {
 app.get('/create', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'create_recipe.html'));
 });
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
 app.listen(process.env.PORT ?? 3000);
 console.log('Server started on port 3000');

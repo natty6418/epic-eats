@@ -60,4 +60,13 @@ router.post('/recipe', auth, async (req, res) => {
   res.send(recipe);
 });
 
+router.post('/logout', auth, (req, res) => {
+  req.session.destroy();
+  res.send({message: 'Logged out successfully'});
+});
+router.get('/my-recipes', auth, async (req, res) => {
+  const recipes = await Recipe.find({userId: req.session.user_id});
+  res.send([...recipes]);
+});
+
 export default router;
