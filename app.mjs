@@ -1,10 +1,10 @@
-import express from 'express'
-import './config.mjs'
-import mongoose from 'mongoose'
-import path from 'path'
+import express from 'express';
+import './config.mjs';
+import mongoose from 'mongoose';
+import path from 'path';
 import { fileURLToPath } from 'url';
-import apiRoutes from './routes/api.mjs'
-import session from 'express-session'
+import apiRoutes from './routes/api.mjs';
+import session from 'express-session';
 
 const sessionOptions = {
     secret: process.env.SESSION_SECRET,
