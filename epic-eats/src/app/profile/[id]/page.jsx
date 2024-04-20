@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from 'next/navigation'
 import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-
+import Loading from "@/components/Loading";
 
 export default function ProfilePage({params}){
     const router = useRouter();
@@ -48,8 +48,12 @@ export default function ProfilePage({params}){
         fetchMyRecipes();
     }
     , [user]);
-    return (            
-        <div className="container mx-auto p-8">
+    const profilePage = () => {
+        if (!user) {
+            return <Loading />;
+        }
+        return (
+            <div className="container mx-auto p-8">
             <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center text-center">
                 <img src={user?.profilePic || "https://via.placeholder.com/150"} alt="Profile Photo" className="rounded-full w-32 h-32 mb-4 object-cover"/>
                 <h1 className="text-xl font-semibold">{user?.username}</h1>
@@ -76,14 +80,15 @@ export default function ProfilePage({params}){
                         )) : <p className="text-gray-800">No recipes found</p>
                     }
                 </div>
-    
-                
             </div>
-    
-            
         </div>
-
+        )
+    }
+    return (            
         
+        <>
+        {profilePage()}
+        </>
 
     )
 }
