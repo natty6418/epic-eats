@@ -40,9 +40,10 @@ function CreateRecipeForm() {
     };
 
     return (
-        <main className="bg-gray-50 p-8 items-center">
-            <h2 className="text-2xl font-semibold text-gray-800 max-w-[50%] m-auto">Create Your Recipe</h2>
-            <form id="recipe-form" className="space-y-6 max-w-[50%] m-auto" onSubmit={handleSubmit}>
+        <main className="bg-gray-50 p-8 flex justify-center items-start">
+        <div className="space-y-6 w-full max-w-2xl">
+            <h2 className="text-2xl font-semibold text-gray-800 text-center">Create Your Recipe</h2>
+            <form id="recipe-form" className="space-y-6" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700">Recipe Title</label>
                     <input
@@ -50,21 +51,22 @@ function CreateRecipeForm() {
                         id="title"
                         name="title"
                         required
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
                 </div>
                 <div className="form-group">
                     <label className="block text-sm font-medium text-gray-700">Ingredients</label>
-                    {ingredients.map((ingredient, index) => (
-                        <div key={index} className="flex space-x-3 mb-4 w-a">
+                    {
+                        ingredients.map((ingredient, index) => (
+                            <div key={index} className="flex flex-wrap space-x-3 mb-4">
                             <input
                                 type="text"
                                 name="ingredient[]"
                                 placeholder="Ingredient"
                                 required
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                                className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:flex-auto sm:w-auto"
                                 value={ingredient.ingredient}
                                 onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
                             />
@@ -73,18 +75,23 @@ function CreateRecipeForm() {
                                 name="quantity[]"
                                 placeholder="Quantity"
                                 required
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                                className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:flex-auto sm:w-auto"
                                 value={ingredient.quantity}
                                 onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
                             />
-                            {index === ingredients.length - 1 ? (
-                                <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 w-8 rounded" onClick={addIngredient}>+</button>
-                            ):(
-                                <button type="button" className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 w-8 rounded" onClick={() => setIngredients(ingredients.filter((_, i) => i !== index))}>-</button>
-                            
-                            )}
+                            <button 
+                                type="button" 
+                                className={`text-white font-bold py-1 px-2 rounded focus:outline-none ${index === ingredients.length - 1 ? 'bg-blue-500 hover:bg-blue-700' : 'bg-red-500 hover:bg-red-700'}`}
+                                onClick={index === ingredients.length - 1 ? addIngredient : () => setIngredients(ingredients.filter((_, i) => i !== index))}
+                                style={{ minWidth: '2rem' }}  // Ensure button has a minimum width
+                            >
+                                {index === ingredients.length - 1 ? '+' : '-'}
+                            </button>
                         </div>
-                    ))}
+                        
+                        ))
+                    }
+                
                 </div>
                 <div className="form-group">
                     <label htmlFor="instructions" className="block text-sm font-medium text-gray-700">Instructions</label>
@@ -93,7 +100,7 @@ function CreateRecipeForm() {
                         name="instructions"
                         rows="8"
                         required
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         value={instructions}
                         onChange={(e) => setInstructions(e.target.value)}
                     ></textarea>
@@ -104,15 +111,17 @@ function CreateRecipeForm() {
                         type="url"
                         id="image"
                         name="recipe-img"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         value={image}
                         onChange={(e) => setImage(e.target.value)}
                     />
                 </div>
-                <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Submit Recipe</button>
-                {error && <p className="text-red-500">{error}</p>}
+                <button type="submit" className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit Recipe</button>
+                {error && <p className="text-red-500 text-center">{error}</p>}
             </form>
-        </main>
+        </div>
+    </main>
+    
     );
 }
 

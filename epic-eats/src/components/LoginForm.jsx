@@ -12,6 +12,8 @@ export default function LoginForm() {
     const router = useRouter();
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const btn = document.getElementById("login-btn");
+        btn.disabled = true;
         const email = e.target.email.value;
         const password = e.target.password.value;
         const result = await signIn('credentials', {
@@ -19,7 +21,8 @@ export default function LoginForm() {
             email,
             password
         });
-        if (!result.error) {
+        console.log("login: ", result)
+        if (result.ok) {
             router.push('/feed');
         } else {
             setError("Invalid email or password");

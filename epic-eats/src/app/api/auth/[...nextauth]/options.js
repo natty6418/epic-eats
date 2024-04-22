@@ -13,11 +13,8 @@ export const options = {
             },
             async authorize(credentials) {
                 await connectDB();
-                console.log(credentials);
                 const { email, password } = credentials;
-                console.log(email, password);
                 const user = await User.findOne({ email });
-                console.log(user);
                 if (!user) {
                     return null;
                 }
@@ -25,6 +22,7 @@ export const options = {
                 if (!validPassword) {
                     return null;
                 }
+                console.log("Logged In.")
                 return { email: user.email, username: user.username, id: user._id };
             }
         })

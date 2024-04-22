@@ -20,13 +20,7 @@ async function connectDB() {
 
     if (!cached.promise) {
         // Create a new database connection and use a promise to handle it
-        const opts = {
-            bufferCommands: false, // Disable mongoose buffering
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        };
-
-        cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+        cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
             return mongoose;
         });
     }

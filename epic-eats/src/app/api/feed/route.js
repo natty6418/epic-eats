@@ -1,5 +1,6 @@
 import connectDB from "@/db.mjs";
 import { Recipe } from "../../../../Model/Recipe.mjs";
+import { User } from "../../../../Model/User.mjs";
 
 export async function GET(request) {
     await connectDB();
