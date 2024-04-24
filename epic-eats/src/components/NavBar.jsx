@@ -1,46 +1,167 @@
 "use client";
-
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession } from "next-auth/react";
 
-export default function NavBar() {
-    const { data: session } = useSession();
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+    const [showMobileNav, setShowMobileNav] = useState(false);
 
-    return (
-      <header className="bg-white shadow-md z-10 sticky top-0 w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6 md:justify-start md:space-x-10">
-              <div className="flex justify-start lg:w-0 lg:flex-1">
-                  <h1 className="text-lg font-bold text-gray-900">Epic Eats</h1>
-              </div>
-              <nav className="md:flex space-x-10">
-                  <ul className="flex space-x-4">
-                      <li>
-                          <Link href="/" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                              Home
-                          </Link>
-                      </li>
-                      <li>
-                          <Link href="/feed" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                              Feed
-                          </Link>
-                      </li>
-                      <li>
-                          <Link href="/create" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                              Create Recipe
-                          </Link>
-                      </li>
-                      <li>
-                          <Link href={`/profile/${session?.user?.id}`} className="text-base font-medium text-gray-500 hover:text-gray-900">
-                              Profile
-                          </Link>
-                      </li>
-                  </ul>
-              </nav>
+    useEffect(() => {
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                setShowMobileNav(false);
+            } else{
+                setShowMobileNav(true);
+            
+            }
+        }
+        );
+        return () => {
+            window.removeEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    setShowMobileNav(false);
+                } else{
+                    setShowMobileNav(true);
+                
+                }
+            });
+        }
+    }
+    , []);
+
+    function NavItems() {
+        if (!showMobileNav) {
+        return (
+            <ul className="flex space-x-4">
+                <li>
+                    <Link href="/" className="text-base font-medium text-gray-500 hover:text-gray-900">
+                        Home
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/feed" className="text-base font-medium text-gray-500 hover:text-gray-900">
+                        Feed
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/create" className="text-base font-medium text-gray-500 hover:text-gray-900">
+                        Create Recipe
+                    </Link>
+                </li>
+                <li className="relative">
+                    <input
+                        className="pl-3 pr-10 py-1 text-gray-700 leading-tight focus:outline-none rounded-md"
+                        type="text"
+                        placeholder="Search..."
+                    />
+                    <button
+                        className="absolute right-0 top-0 mt-1 mr-1"
+                        type="submit"
+                    >
+                        <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path d="M21 21l-4.35-4.35m2.65-5.65a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </li>
+                <li>
+                    <Link href={`/profile/me`} className="text-base font-medium text-gray-500 hover:text-gray-900">
+                        Profile
+                    </Link>
+                </li>
+            </ul>
+        );
+    } else {
+        return (
+            <>
+            <div className="-mr-2 -my-2 md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+            >
+              <span className="sr-only">Open menu</span>
+              {/* Icon */}
+              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </button>
           </div>
+
+          {/* Navigation Links - sliding effect */}
+          <nav className={`${isOpen ? 'translate-x-0' : '-translate-x-full'} transform top-0 left-0 w-64 bg-white fixed h-full overflow-auto ease-in-out transition-all duration-300 z-30 md:hidden`}>
+            <ul className="flex flex-col space-y-6 p-6">
+              <li>
+                <Link href="/" className="text-base font-medium text-gray-500 hover:text-gray-900">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/feed" className="text-base font-medium text-gray-500 hover:text-gray-900">
+                  Feed
+                </Link>
+              </li>
+              <li>
+                <Link href="/create" className="text-base font-medium text-gray-500 hover:text-gray-900">
+                  Create Recipe
+                </Link>
+              </li>
+              <li className="relative">
+                <input
+                  className="pl-3 pr-10 py-1 text-gray-700 leading-tight focus:outline-none rounded-md"
+                  type="text"
+                  placeholder="Search..."
+                />
+                <button
+                  className="absolute right-0 top-0 mt-1 mr-1"
+                  type="submit"
+                >
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M21 21l-4.35-4.35m2.65-5.65a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </li>
+              <li>
+                <Link href={`/profile/me`} className="text-base font-medium text-gray-500 hover:text-gray-900">
+                  Profile
+                </Link>
+              </li>
+            </ul>
+          </nav>
+            </>
+        )
+    }
+    }
+
+  return (
+    <header className="bg-white shadow-md z-10 sticky top-0 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-6 md:justify-start md:space-x-10">
+          <div className="flex justify-start lg:w-0 lg:flex-1">
+            <h1 className="text-lg font-bold text-gray-900">Epic Eats</h1>
+          </div>
+
+          <NavItems />
+          
+        </div>
       </div>
-  </header>
-  
-    )
-}
+    </header>
+  );
+};
+
+export default Navbar;

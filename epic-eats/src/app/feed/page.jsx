@@ -6,6 +6,7 @@ import Loading from "@/components/Loading";
 
 export default function feed() {
     const [recipes, setRecipes] = useState([]);
+    const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         async function fetchRecipes() {
@@ -15,6 +16,16 @@ export default function feed() {
             setIsLoading(false);
         }
         fetchRecipes();
+    }, []);
+    useEffect(() => {
+        async function fetchUser() {
+            const res = await fetch("/api/user/me");
+            const data = await res.json();
+            setUser(data);
+            setIsLoading(false);
+        }
+        setIsLoading(true);
+        fetchUser();
     }, []);
 
     function RecipeFeed() {
@@ -27,7 +38,7 @@ export default function feed() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                     {/* Example of a Recipe Card */}
                     {recipes.length > 0 ? recipes.map((recipe) => (
-                        <RecipeCard key={recipe._id} recipe={recipe} />
+                        <RecipeCard key={recipe._id} recipe={recipe} currentUserId={user?._id}/>
                     )) : <p className="text-gray-800">No recipes found</p>
                     }
                     {/* You can repeat the above block for each recipe in your feed */}

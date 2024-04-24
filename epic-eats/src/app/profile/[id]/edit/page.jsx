@@ -5,41 +5,52 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/Loading';
 
-function EditProfileForm({isLoading, formData, handleInputChange, handleSubmit, handleImageUpload}){
+function EditProfileForm({ isLoading, formData, handleInputChange, handleSubmit, handleImageUpload }) {
     if (isLoading) {
         return <Loading />;
     }
-    return (<div className="container mx-auto p-8">
-    <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-            <input type="text" id="username" name="username" value={formData.username} onChange={handleInputChange} required minLength="3" maxLength="255" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-            <label htmlFor="bio" className="block text-gray-700 text-sm font-bold mb-2">Bio:</label>
-            <textarea id="bio" name="bio" value={formData.bio} onChange={handleInputChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-        </div>
-        <CldUploadWidget signatureEndpoint="/api/sign-image" options={{ sources: ['local', 'url', 'unsplash'] }}
-            onSuccess={(response) => handleImageUpload(response)}
-        >
-            {({ open }) => (
-                <button type="button" onClick={() => open()} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Upload Image
-                </button>
-            )}
-        </CldUploadWidget>
-        {formData.profilePic && <img src={formData.profilePic} alt="Profile" className="mt-4 w-32 h-32 rounded-full object-cover" />}
-        <div className="mt-4">
-            <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                Save Changes
-            </button>
-        </div>
-    </form>
-</div>)
+    return (
+        <main className="bg-gray-50 p-8 flex justify-center items-start">
+            <div className="container p-8 h-[calc(100vh-9rem)] max-w-2xl">
+                <div class="relative w-32 h-32 mb-4 mx-auto">
+                    <img src={formData?.profilePic || "https://via.placeholder.com/150"} alt="Profile Photo" className="rounded-full w-full h-full object-cover" />
+                    <CldUploadWidget signatureEndpoint="/api/sign-image" options={{ sources: ['local', 'url', 'unsplash'] }}
+                        onSuccess={(response) => handleImageUpload(response)}
+                    >
+                        {({ open }) => (
+                            <button type="button" onClick={()=> open()}  className="absolute bottom-0 right-0 p-2 bg-blue-400 rounded-full shadow-lg">
+                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="w-6 h-6">
+                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                        </svg>
+                        </button>
+                        )}
+                    </CldUploadWidget>
+                </div>
+
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                        <input type="text" id="username" name="username" value={formData.username} onChange={handleInputChange} required minLength="3" maxLength="255" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                        <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="bio" className="block text-gray-700 text-sm font-bold mb-2">Bio:</label>
+                        <textarea id="bio" name="bio" value={formData.bio} onChange={handleInputChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                    </div>
+                    
+
+                    <div className="mt-4">
+                        <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    )
 }
 export default function EditProfile() {
     const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +72,7 @@ export default function EditProfile() {
                 return;
             }
             try {
-                const res = await fetch(`/api/user/${userId}`);
+                const res = await fetch(`/api/user/me`);
                 const data = await res.json();
                 if (data.error) {
                     throw new Error(data.error);
