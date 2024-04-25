@@ -84,12 +84,15 @@ export default function ProfilePage({params}){
             
                 <div className="mt-6 flex flex-col max-w-md mx-auto">
                     <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className="font-semibold text-gray-800 mb-2">My Recipes</h2>
+                        <h2 className="font-semibold text-gray-800 mb-2">Recipes</h2>
+                <div className="grid grid-cols-1 gap-6">
+
                         {
                             myRecipes?.length > 0 ? myRecipes?.map((recipe) => (
                                 <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUserId={user?._id}/>
                             )) : <p className="text-gray-800">No recipes found</p>
                         }
+                    </div>
                     </div>
                 </div>
             </div>

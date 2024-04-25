@@ -27,7 +27,6 @@ export async function POST(request){
             }
         });
     }
-    console.log(data);
     const recipe = new Recipe({ ...data, userId: userId, createdAt: new Date() });
 
     await recipe.save();
@@ -41,4 +40,34 @@ export async function POST(request){
         }
     });
 
+}
+
+export async function GET(request){
+    await connectDB();
+    const session = await getServerSession(options);
+    if (!session) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
+    const query = request.nextUrl.searchParams.get('q').trim();
+    if (query){
+        const recipes = await Recipe.find({ title: { $regex: query, $options: 'i' } });
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
+    const recipes = await Recipe.find();
+    return new Response(JSON.stringify(recipes), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 }

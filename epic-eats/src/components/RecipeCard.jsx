@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 export default function RecipeCard({ recipe, currentUserId }) {
-    console.log(recipe);
-    console.log(currentUserId);
     const [user, setUser] = useState(recipe.userId);
     const [showFullInstructions, setShowFullInstructions] = useState(false);
     const searchParams = useSearchParams()
@@ -46,7 +44,6 @@ export default function RecipeCard({ recipe, currentUserId }) {
             followers: prev.followers.filter(follower => follower !== currentUserId)
         }));
     }
-
     const follow = async () => {
         const res = await fetch(`/api/user/follow`, {
             method: 'POST',
@@ -128,7 +125,6 @@ export default function RecipeCard({ recipe, currentUserId }) {
             savedRecipes: [...prev.savedRecipes, recipe._id]
         }));
     }
-    console.log(user.savedRecipes);
     const removeRecipe = async () => {
         const res = await fetch(`/api/user/savedRecipes/remove`, {
             method: 'POST',
@@ -149,7 +145,7 @@ export default function RecipeCard({ recipe, currentUserId }) {
     }
 
     const SavedBtn = () => {
-        if (user.savedRecipes.includes(recipe._id)) {
+        if (user.savedRecipes?.includes(recipe._id)) {
             return (
                 <button
                     onClick={removeRecipe}
@@ -168,7 +164,7 @@ export default function RecipeCard({ recipe, currentUserId }) {
         }
     }
     return (
-        <div className="bg-white rounded-lg shadow-md pt-2 hover:shadow-lg transition-shadow duration-300 ease-in-out pb-0">
+        <div className="bg-white rounded-lg shadow-md pt-2 hover:shadow-lg transition-shadow duration-300 ease-in-out pb-5 mb-4 relative h-full">
             <div className="flex flex-row items-center justify-between m-2">
                 <Link href={`/profile/${user._id}`} >
                     <div className="flex flex-row w-fit">
@@ -199,7 +195,7 @@ export default function RecipeCard({ recipe, currentUserId }) {
                     }
                 </p>
             </div>
-            <div className="flex">
+            <div className="absolute flex bottom-0 w-full mt-3">
                 <Link href={'/recipe' + '?' + createQueryString("id", recipe._id)} className="flex-grow text-center text-blue-400 font-medium py-2 px-4 rounded-bl-lg transition-colors duration-300 ease-in-out bg-white hover:bg-blue-400 hover:text-white">
                     View
                 </Link>
