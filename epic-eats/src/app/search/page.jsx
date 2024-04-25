@@ -5,6 +5,7 @@ import RecipeCard from '@/components/RecipeCard';
 import Loading from '@/components/Loading';
 import UserCard from '@/components/UserCard';
 
+
 const SearchPage = () => {
     const searchParams = useSearchParams();
     const search = searchParams.get('q') || '';

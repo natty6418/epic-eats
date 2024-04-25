@@ -35,7 +35,6 @@ export default function ProfilePage({params}){
             const res = await fetch(`/api/user/${id}/followers`);
             const data = await res.json();
             setFollowers(data);
-            console.log("followers", data);
         };
         fetchFollowers();
     },
@@ -45,7 +44,6 @@ export default function ProfilePage({params}){
             const res = await fetch(`/api/user/${id}/following`);
             const data = await res.json();
             setFollowing(data);
-            console.log(data);
         };
         fetchFollowing();
     },
