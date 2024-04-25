@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-function CreateRecipeForm() {
+
+function CreateRecipeForm({params}) {
     const router = useRouter();
     const [title, setTitle] = useState('');
     const [ingredients, setIngredients] = useState([{ ingredient: '', quantity: '' }]);
@@ -10,6 +11,24 @@ function CreateRecipeForm() {
     const [description, setDescription] = useState('');
     const [image, setImage] = useState('');
     const [error, setError] = useState(null);
+    const {id} = params;
+    useEffect(() => {
+        const fetchRecipe = async () => {
+            const res = await fetch(`/api/recipe/${id}`);
+            const data = await res.json();
+            if (data.error) {
+                console.log("error", data.error);
+                return;
+            }
+            setTitle(data.title);
+            setIngredients(data.ingredients);
+            setInstructions(data.instructions);
+            setDescription(data.description);
+            setImage(data.image);
+        };
+        fetchRecipe();
+    }, [id]);
+
 
     const handleIngredientChange = (index, field, value) => {
         const newIngredients = [...ingredients];
@@ -25,8 +44,8 @@ function CreateRecipeForm() {
         event.preventDefault();
         // POST request logic here using fetch or another HTTP client
         // console.log({ title, ingredients, instructions, image });
-        const res = await fetch('/api/recipe', {
-            method: 'POST',
+        const res = await fetch(`/api/recipe/${id}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -34,7 +53,7 @@ function CreateRecipeForm() {
         });
         const data = await res.json();
         if (res.ok) {
-            router.push('/feed');
+            router.push('/profile/me');
         } else {
             setError(data.error);
         }
@@ -129,7 +148,7 @@ function CreateRecipeForm() {
                         onChange={(e) => setImage(e.target.value)}
                     />
                 </div>
-                <button type="submit" className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit Recipe</button>
+                <button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Edit Recipe</button>
                 {error && <p className="text-red-500 text-center">{error}</p>}
             </form>
         </div>

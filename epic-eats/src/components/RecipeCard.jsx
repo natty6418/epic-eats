@@ -5,7 +5,7 @@ import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 export default function RecipeCard({ recipe, currentUserId }) {
     const [user, setUser] = useState(recipe.userId);
-    const [showFullInstructions, setShowFullInstructions] = useState(false);
+    const [showFullDescription, setShowFullDescription] = useState(false);
     const searchParams = useSearchParams()
     const createQueryString = useCallback(
         (name, value) => {
@@ -16,12 +16,12 @@ export default function RecipeCard({ recipe, currentUserId }) {
         },
         [searchParams]
     )
-    const toggleInstructions = () => {
-        setShowFullInstructions(!showFullInstructions);
+    const toggleDescription = () => {
+        setShowFullDescription(!showFullDescription);
     };
-    const previewInstructions = recipe.instructions.length > 150
-        ? recipe.instructions.substring(0, 150) + '...'
-        : recipe.instructions;
+    const previewDescriptions = recipe.description.length > 150
+        ? recipe.description.substring(0, 150) + '...'
+        : recipe.description;
 
     const unfollow = async () => {
         const res = await fetch(`/api/user/unfollow`, {
@@ -185,12 +185,12 @@ export default function RecipeCard({ recipe, currentUserId }) {
             <div className="p-4">
                 <h3 className="font-semibold text-lg text-gray-800">{recipe.title}</h3>
                 <p className="text-gray-600">
-                    {showFullInstructions ? recipe.instructions : previewInstructions}
-                    {recipe.instructions.length > 150 &&
+                    {showFullDescription ? recipe.description : previewDescriptions}
+                    {recipe.description.length > 150 &&
                         <span
-                            onClick={toggleInstructions}
+                            onClick={toggleDescription}
                             className="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2 cursor-pointer">
-                            {showFullInstructions ? 'Show Less' : 'Show More'}
+                            {showFullDescription ? 'Show Less' : 'Show More'}
                         </span>
                     }
                 </p>

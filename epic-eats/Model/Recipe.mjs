@@ -8,8 +8,9 @@ const recipeSchema = new Schema({
         ref:'User'},
       title: {type: String, required: true},
       ingredients: [{ingredient: String, quantity: String}],
+      description: {type: String, required: true},
       instructions: {type: String, required: true},
-      comments: {
+      comments: [{
         type: new Schema({
             userId: {
                 type: Schema.Types.ObjectId, 
@@ -20,7 +21,7 @@ const recipeSchema = new Schema({
             text: {type: String, required: true},
             createdAt: {type: Date, required: true}
         })
-      },
+      }],
       createdAt: {type: Date, required: true},
       image: {type: String}
 });
@@ -30,6 +31,7 @@ function validateRecipe(recipe){
         title: joi.string().required(),
         ingredients: joi.array().required(),
         instructions: joi.string().required(),
+        description: joi.string().required().max(255),
         image: joi.string()
     });
     return schema.validate(recipe);

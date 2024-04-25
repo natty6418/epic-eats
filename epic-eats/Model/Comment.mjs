@@ -20,6 +20,6 @@ function validateComment(comment){
     });
     return schema.validate(comment);
 }
-const Comment = mongoose.model('Comment', commentSchema);
+const Comment = mongoose.models.Comment || mongoose.model('Comment', commentSchema);
 
 export { Comment, validateComment };

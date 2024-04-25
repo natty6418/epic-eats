@@ -21,3 +21,24 @@ export async function GET(request,{params}){
         }
     });
 }
+export async function PUT(request, { params }) {
+    await connectDB();
+    const { id } = params;
+    const data = await request.json();
+    const recipe = await Recipe.findByIdAndUpdate(id, data, { new: true });
+    if (!recipe) {
+        return new Response(JSON.stringify({ error: 'Recipe not found' }), {
+            status: 404,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
+    return new Response(JSON.stringify(recipe), {
+        status: 200,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+}
+

@@ -1,6 +1,6 @@
 import connectDB from "@/db.mjs";
-import { Comment } from "../../../../Model/Comment.mjs";
-import { options } from "../../auth/[...nextauth]/options";
+import { Comment, validateComment } from "../../../../Model/Comment.mjs";
+import { options } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 import { Recipe } from "../../../../Model/Recipe.mjs";
 
@@ -17,15 +17,26 @@ export async function POST(request){
     await connectDB();
     const data = await request.json();
     const {recipeId, text} = data;
+    const { error } = validateComment(data);
+    if (error) {
+        return new Response(JSON.stringify({ error: error.details[0].message }), {
+            status: 400,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
     const comment = new Comment({
         user: session.user.id,
         recipe: recipeId,
-        text
+        text,
+        createdAt: new Date(),
     });
     await comment.save();
     const recipe = await Recipe.findById(recipeId);
     recipe.comments.push(comment);
-    return new Response(JSON.stringify({ message: 'Comment added successfully' }), {
+    await recipe.save();
+    return new Response(JSON.stringify(comment), {
         status: 200,
         headers: {
             'Content-Type': 'application/json'

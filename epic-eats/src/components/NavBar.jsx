@@ -171,6 +171,11 @@ const Navbar = () => {
               Profile
             </Link>
           </li>
+          <li>
+          <Link href={`/api/auth/signout`} className="text-base font-medium text-red-400 hover:text-red-500">
+            Sign Out
+            </Link>
+          </li>
         </ul>
       </nav>
         </div>

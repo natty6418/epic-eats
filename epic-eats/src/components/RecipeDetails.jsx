@@ -1,6 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Loading from './Loading';
+import Comment from './Comment';
+import { useSession } from "next-auth/react"
+import Link from 'next/link';
+
 
 function RecipeDetail({ recipeId }) {
     const [recipe, setRecipe] = useState(null);
@@ -9,6 +13,10 @@ function RecipeDetail({ recipeId }) {
     const [user, setUser] = useState(null);
     const [showFullInstructions, setShowFullInstructions] = useState(false);
     const [newComment, setNewComment] = useState('');
+    const [comments, setComments] = useState([]);
+    
+    const { data: session } = useSession();
+    const currentUserId = session?.user?.id;
     
     useEffect(() => {
         async function fetchRecipe() {
@@ -19,6 +27,7 @@ function RecipeDetail({ recipeId }) {
                 console.log("data", data);
                 setRecipe(data);
                 setUser(data.userId);
+                setComments(data.comments);
                 
             } catch (err) {
                 setError(err.message);
@@ -30,10 +39,22 @@ function RecipeDetail({ recipeId }) {
         fetchRecipe();
     }, [recipeId]);
 
-    useEffect(() => {
-        console.log("Recipe", recipe?.userId);
-    }, [recipe]);
+    function SaveStatus(){
+        if(user.savedRecipes.includes(recipeId)){
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+  <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+</svg>
+            )
+        } else{
+            return(
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+  <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-18-18ZM20.25 5.507v11.561L5.853 2.671c.15-.043.306-.075.467-.094a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93ZM3.75 21V6.932l14.063 14.063L12 18.088l-7.165 3.583A.75.75 0 0 1 3.75 21Z" />
+</svg>
 
+            )
+        }
+    }
     if (loading) return <Loading />;
     if (error) return <p>Error: {error}</p>;
     if (!recipe) return <p>No recipe found!</p>;
@@ -45,17 +66,28 @@ function RecipeDetail({ recipeId }) {
     };
 
     // Function to handle comment submission
-    const handleCommentSubmit = (e) => {
+    const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        // Implement the logic to submit the comment to your backend
-        console.log(newComment); // Example action
-        setNewComment(''); // Reset input field after submission
+        const res = await fetch(`/api/comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                recipeId,
+                text: newComment
+            })
+        });
+        const data = await res.json();
+        console.log(data);
+        setNewComment('');
+        setComments([...comments, data]);
     };
 
     const instructionsPreview = recipe.instructions.length > 150
         ? recipe.instructions.substring(0, 150) + '...'
         : recipe.instructions;
-
+    
     return (
         <div className="bg-white shadow-lg rounded-lg p-6 mx-auto max-w-4xl w-full">
 
@@ -71,8 +103,22 @@ function RecipeDetail({ recipeId }) {
 </div>
 
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">{recipe.title}</h2>
+            <div className='flex flex-row space-x-3 py-2 items-center'>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">{recipe.title}</h2>
+                <button>
+                {currentUserId === user._id ?<Link href={`/recipe/edit/${recipeId}`}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-sky-700">
+                <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+              </svg>
+                    </Link> 
+                   : <SaveStatus/>}
+                </button>
+            </div>
             {recipe.image && <img src={recipe.image} alt={recipe.title} className="w-full h-64 object-cover rounded-md my-4" />}
+<p className="whitespace-pre-wrap mb-6 text-gray-700 bg-gray-50 p-3 rounded-lg shadow">
+    {recipe.description}
+</p>
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Ingredients</h3>
 <ul className="list-disc pl-5 mb-6 text-gray-700 bg-gray-50 p-3 rounded-lg shadow">
     {recipe.ingredients.map((item, index) => (
@@ -91,39 +137,45 @@ function RecipeDetail({ recipeId }) {
         className="text-blue-500 hover:text-blue-700 cursor-pointer transition duration-300 ease-in-out ml-2"
         onClick={toggleInstructions}
     >
-        {showFullInstructions ? 'Show Less' : 'Show More'}
+        {recipe.instructions.length > 150 && showFullInstructions ? 'Show Less' : 'Show More'}
         <i className={`fas ${showFullInstructions ? 'fa-angle-up' : 'fa-angle-down'}`}></i>
     </button>
 </p>
 
 <h3 className="text-xl font-semibold mt-4 mb-4 text-gray-800">Comments</h3>
-<div className="space-y-4 mb-6">
-    {recipe.comments?.map((comment, index) => (
-        <div key={index} className="bg-gray-50 p-4 rounded-lg shadow">
-            <div className="flex items-center space-x-3 mb-2">
-                <img src={comment.user.avatarUrl} alt="Avatar" className="h-8 w-8 rounded-full" />
-                <p className="font-semibold">{comment.user.name}</p>
-                <p className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</p>
-            </div>
-            <p>{comment.text}</p>
-        </div>
-    ))}
-</div>
-<form onSubmit={handleCommentSubmit} className="space-y-4">
-    <textarea
+
+<form onSubmit={handleCommentSubmit} className="flex items-center bg-white p-3 rounded-lg shadow-md">
+    <input
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}
-        className="w-full h-24 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        className="flex-grow h-10 p-2 border-0 rounded-md focus:outline-none  resize-none"
         placeholder="Add a comment..."
-    ></textarea>
+    ></input>
     <button
         type="submit"
-        className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-lg transition-colors duration-200 ease-in-out"
     >
-        Post Comment
+        Send
     </button>
 </form>
 
+
+        <div
+            className="bg-white mt-1 border-b-2 border-gray-200 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-300 ease-in-out"
+        >
+            {
+                comments.map(comment => (
+                    <Comment 
+                    key={comment._id} 
+                    comment={comment.text}
+                    userId={user._id}
+                    profilePic = {user.profilePic}
+                    username={user.username}
+                    createdAt={comment.createdAt}
+                     />
+                ))
+            }
+        </div>
         </div>
     );
 }

@@ -27,7 +27,7 @@ export async function POST(request){
             }
         });
     }
-    const recipe = new Recipe({ ...data, userId: userId, createdAt: new Date() });
+    const recipe = new Recipe({ ...data, userId: userId, createdAt: new Date()});
 
     await recipe.save();
     const user = await User.findById(userId);
