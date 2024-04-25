@@ -2,8 +2,10 @@
 import React from "react";
 import Link from 'next/link';
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function UserCard({ user, currentUserId }) {
+    const { data: session } = useSession();
     const [isFollowing, setIsFollowing] = useState(user.followers.includes(currentUserId));
     const unfollow = async () => {
         const res = await fetch(`/api/user/unfollow`, {
@@ -68,7 +70,7 @@ export default function UserCard({ user, currentUserId }) {
         )
     }
     function FollowStatus() {
-        if (currentUserId === user._id) {
+        if (currentUserId === user._id || currentUserId !== session?.user?.id) {
             return (
                 <div></div>
             )

@@ -56,7 +56,7 @@ const SearchPage = () => {
                 className='grid grid-cols-1 gap-6 max-w-md mx-auto mb-2'
             >
                 {results.recipes.map(recipe => (
-                    <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUserId={user?._id}/>
+                    <RecipeCard key={recipe._id} recipe={{...recipe}} currentUserId={user?._id} saved={user.savedRecipes.includes(recipe._id)}/>
                 ))}
             </div>
         );

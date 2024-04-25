@@ -55,7 +55,7 @@ export async function GET(request){
     }
     const query = request.nextUrl.searchParams.get('q').trim();
     if (query){
-        const recipes = await Recipe.find({ title: { $regex: query, $options: 'i' } });
+        const recipes = await Recipe.find({ title: { $regex: query, $options: 'i' } }).populate('userId');
         return new Response(JSON.stringify(recipes), {
             status: 200,
             headers: {
@@ -63,7 +63,7 @@ export async function GET(request){
             }
         });
     }
-    const recipes = await Recipe.find();
+    const recipes = await Recipe.find().populate('userId');
     return new Response(JSON.stringify(recipes), {
         status: 200,
         headers: {

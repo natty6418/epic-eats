@@ -1,30 +1,22 @@
 "use client";
-import React from "react";
+import React, { use } from "react";
 import Link from 'next/link';
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react"
-import { useRouter } from 'next/navigation'
-import { useCallback } from "react";
-import { useSearchParams } from "next/navigation";
 import Loading from "@/components/Loading";
 import RecipeCard from "@/components/RecipeCard";
+import Dialog from '@mui/material/Dialog';
+import UserCard from "@/components/UserCard";
 
 export default function ProfilePage({params}){
-    const router = useRouter();
     const [user, setUser] = useState(null);
     const [myRecipes, setMyRecipes] = useState([]);
+    const [followers, setFollowers] = useState([]);
+    const [following, setFollowing] = useState([]);
+    const [showFollowersOrFollowing, setShowFollowersOrFollowing] = useState("followers");
+    const [open, setOpen] = useState(false);
     const { data: session } = useSession();
-    const searchParams = useSearchParams()
     const { id } = params;
-    const createQueryString = useCallback(
-        (name, value) => {
-          const params = new URLSearchParams(searchParams)
-          params.set(name, value)
-     
-          return params.toString()
-        },
-        [searchParams]
-      )
     useEffect(() => {
         const fetchUser = async () => {
             const res = await fetch(`/api/user/${id}`);
@@ -38,10 +30,55 @@ export default function ProfilePage({params}){
         fetchUser();
     }
     , [session]);
+    useEffect(() => {
+        const fetchFollowers = async () => {
+            const res = await fetch(`/api/user/${id}/followers`);
+            const data = await res.json();
+            setFollowers(data);
+            console.log("followers", data);
+        };
+        fetchFollowers();
+    },
+    []);
+    useEffect(() => {
+        const fetchFollowing = async () => {
+            const res = await fetch(`/api/user/${id}/following`);
+            const data = await res.json();
+            setFollowing(data);
+            console.log(data);
+        };
+        fetchFollowing();
+    },
+    []);
+    function Followers(){
+        return (
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+                <h2 className="font-semibold text-gray-800 mb-2">Followers</h2>
+                <ul className="text-gray-600">
+                    {followers.length > 0 ? followers.map((follower) => (
+                        <UserCard key={follower._id} user={follower} currentUserId={user._id}/>
+                    )) : <p className="text-gray-800">No followers found</p>}
+                </ul>
+            </div>
+        )
+    }
+    function Following(){
+        return (
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+                <h2 className="font-semibold text-gray-800 mb-2">Following</h2>
+                <ul className="text-gray-600">
+                    {following.length > 0 ? following.map((follow) => (
+                        <UserCard key={follow._id} user={follow} currentUserId={user._id}/>
+                    )) : <p className="text-gray-800">Not following anyone</p>}
+                </ul>
+            </div>
+        )
+    
+    }
 
     useEffect(() => {
         const fetchMyRecipes = async () => {
-            const res = await fetch(id === 'me'?`/api/recipe/user-recipe`:`/api/recipe/user-recipe/${id}`); //TODO: Modify the route
+            const res = await fetch(id === 'me'?`/api/recipe/user-recipe`:`/api/recipe/user-recipe/${id}`); 
             const data = await res.json();
             setMyRecipes(data);
         };
@@ -64,20 +101,31 @@ export default function ProfilePage({params}){
                     <p className="text-gray-600">{user?.email}</p>
                     <p className="text-gray-600">{user?.bio}</p>
                     {id === 'me' && (
-                      <button
-                        className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={() => router.push('/profile/me/edit')}
+                      <Link href="/profile/me/edit"
+                        className="mt-4 text-blue-500 hover:text-blue-700 font-light underline cursor-pointer"
                       >
                         Edit Profile
-                      </button>
+                      </Link>
                     )}
                   </div>
                 </div>
                 <div 
                 className="flex flex-row sm:flex-col items-center sm:items-start justify-around sm:justify-start w-full sm:w-auto mt-4 sm:mt-0">
                   <p className="font-medium">{myRecipes.length || "0"} recipes</p>
-                  <p className="font-medium">{user?.following.length || "0"} following</p>
-                  <p className="font-medium">{user?.followers.length || "0"} followers</p>
+                  <p 
+                  onClick={() => {
+                        setShowFollowersOrFollowing("followers");
+                        setOpen(true);
+                    }
+                  }
+                  className="font-medium cursor-pointer">{user?.following.length || "0"} following</p>
+                  <p 
+                  onClick={() => {
+                        setShowFollowersOrFollowing("following");
+                        setOpen(true);
+                    }
+                }
+                  className="font-medium cursor-pointer">{user?.followers.length || "0"} followers</p>
                 </div>
               </div>
               
@@ -89,12 +137,25 @@ export default function ProfilePage({params}){
 
                         {
                             myRecipes?.length > 0 ? myRecipes?.map((recipe) => (
-                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUserId={user?._id}/>
+                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUserId={user?._id} saved={user?.savedRecipes.includes(recipe._id)}/>
                             )) : <p className="text-gray-800">No recipes found</p>
                         }
                     </div>
                     </div>
                 </div>
+                <Dialog
+                    open={open}
+                    onClose={() => setOpen(false)}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    className="flex justify-center items-center border-none rounded-lg shadow-lg"
+                >
+                <div className="mt-6 flex flex-col mx-auto w-[400px] border-none"> 
+                <div className="bg-white rounded-lg shadow-lg p-3">
+                        {showFollowersOrFollowing === "followers" ? <Followers /> : <Following />}
+                    </div>
+                </div>
+                </Dialog>
             </div>
             </main>
             )

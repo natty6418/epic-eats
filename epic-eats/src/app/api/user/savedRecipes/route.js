@@ -15,7 +15,14 @@ export async function GET(request) {
     }
     const userId = session.user.id;
     await connectDB();
-    const user = await User.findById(userId).populate('savedRecipes');
+    const user = await User.findById(userId)
+    .populate({
+      path: 'savedRecipes',
+      populate: {
+        path: 'userId',
+        model: 'User'
+      }
+    });
     const recipes = user.savedRecipes;
     const search = request.nextUrl.searchParams.get('query')?.trim();
     if(search){

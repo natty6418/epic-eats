@@ -9,44 +9,33 @@ const Navbar = () => {
     const navRef = useRef();
     const router = useRouter();
 
-    // Effect for handling clicks outside of the nav menu
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (navRef.current && !navRef.current.contains(event.target)) {
           setIsOpen(false);
         }
       };
-  
-      // Adding click event listener
-      document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside);
   
       return () => {
-        // Clean up the event listener
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }, [navRef]);
+    const handleResize = () => {
+        if (window.innerWidth > 768) {
+            setShowMobileNav(false);
+        } else {
+            setShowMobileNav(true);
+        }
+    };
+
     useEffect(() => {
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                setShowMobileNav(false);
-            } else{
-                setShowMobileNav(true);
-            
-            }
-        }
-        );
+        window.addEventListener('resize', handleResize);
+        handleResize();
         return () => {
-            window.removeEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    setShowMobileNav(false);
-                } else{
-                    setShowMobileNav(true);
-                
-                }
-            });
-        }
-    }
-    , []);
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
     const handleSubmit = (e) => {
         e.preventDefault();
         const search = e.target[0].value;
@@ -125,7 +114,9 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-6 md:justify-start md:space-x-10">
           <div className="flex justify-start lg:w-0 lg:flex-1">
+          <Link href="/">
             <h1 className="text-lg font-bold text-gray-900">Epic Eats</h1>
+            </Link>
           </div>
           <NavItems />
 
