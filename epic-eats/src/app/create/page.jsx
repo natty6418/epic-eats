@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { CldUploadWidget } from 'next-cloudinary';
 
 function CreateRecipeForm() {
     const router = useRouter();
@@ -8,7 +9,7 @@ function CreateRecipeForm() {
     const [ingredients, setIngredients] = useState([{ ingredient: '', quantity: '' }]);
     const [instructions, setInstructions] = useState('');
     const [description, setDescription] = useState('');
-    const [image, setImage] = useState('');
+    const [image, setImage] = useState("https://via.placeholder.com/800");
     const [error, setError] = useState(null);
 
     const handleIngredientChange = (index, field, value) => {
@@ -118,16 +119,24 @@ function CreateRecipeForm() {
                         onChange={(e) => setInstructions(e.target.value)}
                     ></textarea>
                 </div>
-                <div className="form-group">
-                    <label htmlFor="image" className="block text-sm font-medium text-gray-700">Recipe Image (URL)</label>
-                    <input
-                        type="url"
-                        id="image"
-                        name="recipe-img"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        value={image}
-                        onChange={(e) => setImage(e.target.value)}
-                    />
+                <div className="relative">
+                    <label htmlFor="image" className="block text-sm font-medium text-gray-700">Recipe Image</label>
+                    <img src={image} className={` relative mt-1 block w-full h-24 rounded-md focus:ring-blue-500 focus:border-blue-500 opacity-20 object-cover`} />
+                    <CldUploadWidget signatureEndpoint={'/api/sign-image'} options={{sources: ['local', 'url', 'unsplash']}}
+                        onSuccess={(response) => setImage(response.info.secure_url)}
+                    >
+                    {({open}) =>(
+                        <button type="button" onClick={open} 
+                         className='absolute top-1/2 left-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-1 rounded-full focus:outline-none focus:shadow-outline opacity-100 '
+                         style={{opacity: 1}}
+                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+  <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
+</svg>
+
+                        </button>
+                    )}
+                    </CldUploadWidget>
                 </div>
                 <button type="submit" className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit Recipe</button>
                 {error && <p className="text-red-500 text-center">{error}</p>}

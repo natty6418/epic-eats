@@ -43,11 +43,12 @@ const SearchPage = () => {
             <div
             className='max-w-lg mx-auto'
             >
-                {results.users.map(el => (
+                {results.users.length>0?results.users.map(el => (
                     <div key={el._id} className="bg-white rounded-lg shadow-md p-2 hover:shadow-lg transition-shadow duration-300 ease-in-out m-2">
                     <UserCard user={el} currentUserId={user._id}/>
                     </div>
-                ))}
+                )):
+                <p className="text-center">No users found</p>}
             </div>
         );
     }
@@ -56,9 +57,11 @@ const SearchPage = () => {
             <div
                 className='grid grid-cols-1 gap-6 max-w-md mx-auto mb-2'
             >
-                {results.recipes.map(recipe => (
+                {results.recipes.length>0?results.recipes.map(recipe => (
                     <RecipeCard key={recipe._id} recipe={{...recipe}} currentUserId={user?._id} saved={user.savedRecipes.includes(recipe._id)}/>
-                ))}
+                ))
+                : <p className="text-center">No recipes found</p>
+            }
             </div>
         );
     }

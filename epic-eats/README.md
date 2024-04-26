@@ -1,7 +1,3 @@
-The content below is an example project proposal / requirements document. Replace the text below the lines marked "__TODO__" with details specific to your project. Remove the "TODO" lines.
-
-(___TODO__: your project name_)
-
 # Epic Eats 
 
 ## Overview
@@ -46,7 +42,6 @@ An Example Recepie:
   instructions: // a string,
   image: // a reference to an Image,
   comments: // an array of references to Comments
-  category: // a string
   createdAt: // timestamp
 }
 ```
@@ -66,17 +61,16 @@ An Example of Comment:
 
 ## Wireframes
 
-(___TODO__: wireframes for all of the pages on your site; they can be as simple as photos of drawings or you can use a tool like Balsamiq, Omnigraffle, etc._)
 
 /feed
 
 ![list create](documentation/feed.png)
 
-/profile/create - page for showing all shopping lists
+/create - page for creating a new recepie
 
 ![list](documentation/create.png)
 
-/profile/saved - page for showing specific shopping list
+/saved - page for saved recepies
 
 ![list](documentation/saved.png)
 
@@ -90,13 +84,23 @@ An Example of Comment:
 /login - page for logging in
 ![list](documentation/login.png)
 
+/recepie - page for viewing a specific recepie
+![list](documentation/recepie.png)
+
+/recipe/edit - page for editing a recepie
+![list](documentation/edit.png)
+
+/search - page for searching users or recepies
+![list](documentation/search.png)
+
+
+
 ## Site map
 
 [Site Map](documentation/site-map.jpg)
 
 ## User Stories or Use Cases
 
-(___TODO__: write out how your application will be used through [user stories](http://en.wikipedia.org/wiki/User_story#Format) and / or [use cases](https://www.mongodb.com/download-center?jmp=docs&_ga=1.47552679.1838903181.1489282706#previous)_)
 
 1. as non-registered user, I can register a new account with the site
 2. as a user, I can log in to the site
@@ -112,40 +116,42 @@ An Example of Comment:
 12. as a user, I can follow other users
 13. as a user, I can comment on a recepie
 14. as a user, I can view all the comments on a recepie
-15. as a user, I can view all the recepies of a specific category
 ## Research Topics
 
-(___TODO__: the research topics that you're planning on working on along with their point values... and the total points of research topics listed_)
-
 * (5 points) Integrate user authentication
-    * I'm going to be using jason web tokens for user authentication
-    * I'm going to hash the passwords using bcrypt
+    * I used next-auth for user authentication and session management
+    * i used jwt for token based authentication
     * I'm assigning this 5 points because it's an important part of the project
 * (3 points) Perfom validation on the server side
-    * I'll be using Joi for validation
+    * I used Joi for validating changes to the database before saving
 * (3 points) Use a CSS framework throughout the site
-    * I'll be using tailwindcss
-* (3 points) Body parsing and error handling middleware
-    * I'll be using multer for body parsing and express-async-errors for error handling
-* (5 points) React
-    * I'll be using react for the front end
+    * I used tailwindcss for styling
+* (3 points) External API for image upload
+    * I used cloudinary API for image upload
+* (5 points) Framework
+    * I used Next.js framework to serve both the front end and the backend
+* (3 points) API testing
+    * I used Jest for testing the API endpoints for the user and recipe routes
 
-10 points total out of 8 required points (___TODO__: addtional points will __not__ count for extra credit_)
+22 points total
 
 
-## [Link to Initial Main Project File](app.js) 
+## [Link to Initial Main Project File](./src/app/page.js)
 
-(___TODO__: create a skeleton Express application with a package.json, app.js, views folder, etc. ... and link to your initial app.js_)
+
 
 ## Annotations / References Used
 
-(___TODO__: list any tutorials/references/etc. that you've based your code off of_)
 
-1. [passport.js authentication docs](http://passportjs.org/docs) 
-2. [jsonwebtoken docs](https://jwt.io/) 
-3. [express-async-errors](https://medium.com/@utkuu/error-handling-in-express-js-and-express-async-errors-package-639c91ba3aa2)
-4. [tailwindcss](https://tailwindcss.com/docs)
-5. [multer](https://www.npmjs.com/package/multer)
-6. [joi](https://joi.dev/api/?v=17.12.2)
-7. [bcrypt](https://www.npmjs.com/package/bcrypt)
-8. [react](https://reactjs.org/docs/getting-started.html)
+1. [next-auth docs](https://next-auth.js.org/getting-started/introduction)
+2. [next-auth guide](https://clerk.com/blog/complete-guide-session-management-nextjs)
+3. [jsonwebtoken docs](https://jwt.io/) 
+4. [cloudinary docs](https://cloudinary.com/documentation/upload_images)
+5. [cloudinary tutorial](https://youtu.be/ULp6-UjQA3o?si=5c2mX5SSjfORtKhb)
+6. [tailwindcss](https://tailwindcss.com/docs)
+7. [joi](https://joi.dev/api/?v=17.12.2)
+8. [bcrypt](https://www.npmjs.com/package/bcrypt)
+9. [next.js](https://nextjs.org/docs/getting-started)
+10. [next.js tutorial](https://youtu.be/NgayZAuTgwM?si=cklGzP7w6V53GBil)
+11. [jest](https://jestjs.io/docs/getting-started)
+12. [jest for Next](https://nextjs.org/docs/app/building-your-application/testing/jest)

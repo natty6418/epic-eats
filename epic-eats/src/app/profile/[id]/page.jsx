@@ -168,28 +168,3 @@ export default function ProfilePage({params}){
     )
 }
 
-// {<div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-//                     <div className="bg-white rounded-lg shadow-lg p-6">
-//                         <h2 className="font-semibold text-gray-800 mb-2">Followers</h2>
-//                         <ul className="text-gray-600">
-//                             <li>Follower 1</li>
-//                             <li>Follower 2</li>
-//                         </ul>
-//                     </div>
-        
-                
-//                     <div className="bg-white rounded-lg shadow-lg p-6">
-//                         <h2 className="font-semibold text-gray-800 mb-2">Following</h2>
-//                         <ul className="text-gray-600">
-//                             <li>Following 1</li>
-//                             <li>Following 2</li>
-//                         </ul>
-//                     </div>
-//                 </div>}
-// <div className="bg-white rounded-lg shadow-lg p-6">
-//                         <h2 className="font-semibold text-gray-800 mb-2">Saved Recipes</h2>
-//                         <ul className="text-gray-600">
-//                             <li>Recipe 3</li>
-//                             <li>Recipe 4</li>
-//                         </ul>
-//                     </div>
