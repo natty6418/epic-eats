@@ -135,7 +135,7 @@ export default function ProfilePage({params}){
 
                         {
                             myRecipes?.length > 0 ? myRecipes?.map((recipe) => (
-                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUser={user} saved={user?.savedRecipes.includes(recipe._id)} setCurrentUser={setUser}/>
+                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUser={user} saved={user?.savedRecipes?.includes(recipe._id)} setCurrentUser={setUser}/>
                             )) : <p className="text-gray-800">No recipes found</p>
                         }
                     </div>

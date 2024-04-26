@@ -67,7 +67,6 @@ export default function SavedRecipes() {
                     <h2 className="text-2xl font-semibold text-gray-800 mb-6 mx-auto text-center">Saved Recipes</h2>
                     <SearchBar recipes={recipes} setRecipes={setRecipes} />
                     <div className="grid grid-cols-1 gap-6 m-auto max-w-md">
-                        {/* Example of a Recipe Card */}
                         {
                             recipes.length > 0 && !!user ? recipes.map((recipe) => {
                                 return (
@@ -75,7 +74,6 @@ export default function SavedRecipes() {
                                 )
                             }) : <p className="text-gray-800">No recipes found</p>
                         }
-                        {/* You can repeat the above block for each recipe in your feed */}
                     </div>
                 </section>
             </main>
