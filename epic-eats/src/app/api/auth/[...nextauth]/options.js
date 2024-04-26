@@ -27,9 +27,12 @@ export const options = {
             }
         })
     ],
+    session:{
+        strategy: "jwt",
+    },
     callbacks: {
         async jwt({ token, user, account }) {
-            if (account && user) {
+            if (user) {
                 return {
                   ...token,
                   user: {
@@ -43,6 +46,6 @@ export const options = {
         async session({session, token}) {
             session.user = token.user
             return session;
-        }
+        },
     }
 }

@@ -20,9 +20,9 @@ export default function RecipeCard({ recipe, currentUserId, saved }) {
     const toggleDescription = () => {
         setShowFullDescription(!showFullDescription);
     };
-    const previewDescriptions = recipe.description.length > 150
-        ? recipe.description.substring(0, 150) + '...'
-        : recipe.description;
+    const previewDescriptions = recipe?.description.length > 150
+        ? recipe?.description.substring(0, 150) + '...'
+        : recipe?.description;
 
     const unfollow = async () => {
         const res = await fetch(`/api/user/unfollow`, {

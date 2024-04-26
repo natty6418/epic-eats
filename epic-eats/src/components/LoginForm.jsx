@@ -2,29 +2,22 @@
 import React from "react";
 import Link from "next/link";
 import {signIn} from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import {useState} from "react";
 
 
 export default function LoginForm() {
     
     const [error, setError] = useState(null);
-    const router = useRouter();
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById("login-btn");
-        btn.disabled = true;
         const email = e.target.email.value;
         const password = e.target.password.value;
         const result = await signIn('credentials', {
-            redirect: false,
             email,
-            password
+            password,
+            callbackUrl: '/'
         });
-        console.log("login: ", result)
-        if (result.ok) {
-            router.push('/feed');
-        } else {
+        if (!result.ok) {
             setError("Invalid email or password");
         }
     }
