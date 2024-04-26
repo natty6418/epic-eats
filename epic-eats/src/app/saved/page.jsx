@@ -71,7 +71,7 @@ export default function SavedRecipes() {
                         {
                             recipes.length > 0 && !!user ? recipes.map((recipe) => {
                                 return (
-                                    <RecipeCard key={recipe._id} recipe={recipe} currentUserId={user?._id} saved={true} />
+                                    <RecipeCard key={recipe._id} recipe={recipe} currentUser={user} saved={true} setCurrentUser={setUser}/>
                                 )
                             }) : <p className="text-gray-800">No recipes found</p>
                         }

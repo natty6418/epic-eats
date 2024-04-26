@@ -1,6 +1,7 @@
 import connectDB from "@/db.mjs";
 import { User } from "../../../../Model/User.mjs";
 
+export const dynamic = 'force-dynamic';
 export async function GET(request){
     await connectDB();
     const query = (request.nextUrl.searchParams.get('q'))?.trim();

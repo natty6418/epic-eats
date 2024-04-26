@@ -41,7 +41,7 @@ export async function POST(request){
     });
 
 }
-
+export const dynamic = 'force-dynamic';
 export async function GET(request){
     await connectDB();
     const session = await getServerSession(options);

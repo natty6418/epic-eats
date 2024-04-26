@@ -3,7 +3,8 @@ import React, { useState} from "react";
 import Link from 'next/link';
 import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-export default function RecipeCard({ recipe, currentUserId, saved }) {
+export default function RecipeCard({ recipe, currentUser, saved, setCurrentUser }) {
+    const currentUserId = currentUser?._id;
     const [isSaved, setIsSaved] = useState(saved);
     const [user, setUser] = useState(recipe.userId);
     const [showFullDescription, setShowFullDescription] = useState(false);
@@ -44,6 +45,10 @@ export default function RecipeCard({ recipe, currentUserId, saved }) {
             ...prev,
             followers: prev.followers.filter(follower => follower !== currentUserId)
         }));
+        setCurrentUser(prev => ({
+            ...prev,
+            following: prev.following.filter(following => following !== user._id)
+        }));
     }
     const follow = async () => {
         const res = await fetch(`/api/user/follow`, {
@@ -64,6 +69,10 @@ export default function RecipeCard({ recipe, currentUserId, saved }) {
         setUser(prev => ({
             ...prev,
             followers: [...prev.followers, currentUserId]
+        }));
+        setCurrentUser(prev => ({
+            ...prev,
+            following: [...prev.following, user._id]
         }));
     }
 
@@ -100,7 +109,7 @@ export default function RecipeCard({ recipe, currentUserId, saved }) {
                 <div></div>
             )
         }
-        if (user.followers.includes(currentUserId)) {
+        if (currentUser?.following.includes(user._id)) {
             return unfollowBtn();
         } else {
             return followBtn();

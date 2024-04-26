@@ -3,7 +3,7 @@ import { User } from "../../../../../../Model/User.mjs";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 
-
+export const dynamic = 'force-dynamic';
 export async function GET(request,{params}){
     const session = await getServerSession(options);
     if (!session) {

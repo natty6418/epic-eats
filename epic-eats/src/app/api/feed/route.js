@@ -1,7 +1,7 @@
 import connectDB from "@/db.mjs";
 import { Recipe } from "../../../../Model/Recipe.mjs";
-import { User } from "../../../../Model/User.mjs";
 
+export const dynamic = 'force-dynamic';
 export async function GET(request) {
     await connectDB();
     const recipes = await Recipe.find().populate('userId').sort({ createdAt: -1 });

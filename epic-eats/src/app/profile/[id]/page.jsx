@@ -112,14 +112,14 @@ export default function ProfilePage({params}){
                   <p className="font-medium">{myRecipes.length || "0"} recipes</p>
                   <p 
                   onClick={() => {
-                        setShowFollowersOrFollowing("followers");
+                        setShowFollowersOrFollowing("following");
                         setOpen(true);
                     }
                   }
                   className="font-medium cursor-pointer">{user?.following.length || "0"} following</p>
                   <p 
                   onClick={() => {
-                        setShowFollowersOrFollowing("following");
+                        setShowFollowersOrFollowing("followers");
                         setOpen(true);
                     }
                 }
@@ -135,7 +135,7 @@ export default function ProfilePage({params}){
 
                         {
                             myRecipes?.length > 0 ? myRecipes?.map((recipe) => (
-                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUserId={user?._id} saved={user?.savedRecipes.includes(recipe._id)}/>
+                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUser={user} saved={user?.savedRecipes.includes(recipe._id)} setCurrentUser={setUser}/>
                             )) : <p className="text-gray-800">No recipes found</p>
                         }
                     </div>

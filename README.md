@@ -64,40 +64,40 @@ An Example of Comment:
 
 /feed
 
-![list create](documentation/feed.png)
+![list create](./epic-eats/documentation/feed.png)
 
 /create - page for creating a new recepie
 
-![list](documentation/create.png)
+![list](./epic-eats/documentation/create.png)
 
 /saved - page for saved recepies
 
-![list](documentation/saved.png)
+![list](./epic-eats/documentation/saved.png)
 
 /profile - page for profile page
 
-![list](documentation/profile.png)
+![list](./epic-eats/documentation/profile.png)
 
 /register - page for registering
-![list](documentation/register.png)
+![list](./epic-eats/documentation/register.png)
 
 /login - page for logging in
-![list](documentation/login.png)
+![list](./epic-eats/documentation/login.png)
 
 /recepie - page for viewing a specific recepie
-![list](documentation/recepie.png)
+![list](./epic-eats/documentation/recipe.png)
 
 /recipe/edit - page for editing a recepie
-![list](documentation/edit.png)
+![list](./epic-eats/documentation/edit.png)
 
 /search - page for searching users or recepies
-![list](documentation/search.png)
+![list](./epic-eats/documentation/search.png)
 
 
 
 ## Site map
 
-[Site Map](documentation/site-map.jpg)
+[Site Map](./epic-eats/documentation/site-map.jpg)
 
 ## User Stories or Use Cases
 
@@ -136,7 +136,7 @@ An Example of Comment:
 22 points total
 
 
-## [Link to Initial Main Project File](./src/app/page.js)
+## [Link to Initial Main Project File](./epic-eats/src/app/page.js)
 
 
 

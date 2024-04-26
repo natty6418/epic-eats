@@ -3,6 +3,7 @@ import { Recipe } from "../../../../../Model/Recipe.mjs";
 import { options } from "../../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 
+export const dynamic = 'force-dynamic';
 export async function GET(request,{params}){
     await connectDB();
     const { id } = params;
