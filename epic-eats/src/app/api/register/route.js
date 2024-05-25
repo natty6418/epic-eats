@@ -2,6 +2,7 @@ import connectDB from '@/db.mjs';
 import bcrypt from 'bcryptjs';
 import {User, validateUser } from '../../../../Model/User.mjs';
 
+export const dynamic = 'force-dynamic';
 export async function POST(req) {
     if (req.method === 'POST') {
       await connectDB();

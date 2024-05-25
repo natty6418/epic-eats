@@ -13,8 +13,6 @@ export default function SignupForm() {
     const router = useRouter()
     const handleRegister = async (e) => {
         e.preventDefault();
-        const btn = document.getElementById("register-btn");
-        btn.disabled = true;
         try {
             const res = await fetch('/api/register', {
                 method: 'POST',

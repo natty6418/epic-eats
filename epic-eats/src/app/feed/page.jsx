@@ -5,7 +5,7 @@ import RecipeCard from "@/components/RecipeCard";
 import Loading from "@/components/Loading";
 
 export default function feed() {
-    const [recipes, setRecipes] = useState([]);
+    const [recipes, setRecipes] = useState(null);
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
@@ -22,9 +22,7 @@ export default function feed() {
             const res = await fetch("/api/user/me");
             const data = await res.json();
             setUser(data);
-            setIsLoading(false);
         }
-        setIsLoading(true);
         fetchUser();
     }, []);
 
@@ -36,7 +34,7 @@ export default function feed() {
             <section className="w-full max-w-4xl p-4">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6">Recipe Feed</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                    {recipes.length > 0 ? recipes.map((recipe) => (
+                    {recipes && recipes.length > 0 ? recipes.map((recipe) => (
                         <RecipeCard key={recipe._id} recipe={recipe} currentUser={user} saved={user?.savedRecipes?.includes(recipe._id)} setCurrentUser={setUser}/>
                     )) : <p className="text-gray-800">No recipes found</p>
                     }
@@ -44,6 +42,9 @@ export default function feed() {
 
             </section>
         </main>)
+    }
+    if (!user) {
+        return <Loading />;
     }
     return (
         <RecipeFeed />
