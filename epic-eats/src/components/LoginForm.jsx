@@ -1,13 +1,21 @@
 "use client";
-import React from "react";
+import React, {useEffect} from "react";
 import Link from "next/link";
 import {signIn} from 'next-auth/react';
 import {useState} from "react";
+import { useSearchParams } from 'next/navigation'
 
 
 export default function LoginForm() {
     
     const [error, setError] = useState(null);
+    const searchParams = useSearchParams()
+    useEffect(()=>{
+        const error = searchParams.get('error');
+        if(error === 'CredentialsSignin') {
+            setError("Invalid email or password");
+        }
+    },[]);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const email = e.target.email.value;
