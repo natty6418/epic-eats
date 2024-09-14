@@ -1,7 +1,6 @@
 import React from 'react'
 import { Inter } from 'next/font/google'
 import NavBar from '@/components/NavBar'
-import Footer from '@/components/Footer'
 import AuthProvider from './context/AuthProvider'
 import './globals.css'
 
@@ -19,8 +18,6 @@ export default function RootLayout({ children }) {
       <AuthProvider>
         <NavBar />
       {children}
-      {// <Footer />
-      }
       </AuthProvider>
       </body>
     </html>

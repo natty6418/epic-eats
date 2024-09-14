@@ -5,7 +5,17 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 
 const genAI = new GoogleGenerativeAI(process.env.GEN_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-1.5-flash",
+    systemInstruction: "You are a friendly and knowledgeable" + 
+    "chef here to guide users through their cooking journey." + 
+    " Offer step-by-step instructions, suggest ingredient " + 
+    "substitutions, and provide cooking tips tailored to their"+
+    " skill level. Use a warm and encouraging tone, celebrate "+
+    "their progress, and help troubleshoot any issues. Adapt"+
+    " to dietary preferences and offer creative variations, "+
+    "ensuring users feel supported and confident in the kitchen."
+});
 
 export async function POST(request){
     const session = await getServerSession(options);

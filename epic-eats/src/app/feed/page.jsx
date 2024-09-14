@@ -3,11 +3,21 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import RecipeCard from "@/components/RecipeCard";
 import Loading from "@/components/Loading";
+import { useSession } from 'next-auth/react';
+
 
 export default function feed() {
     const [recipes, setRecipes] = useState(null);
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { data: session, status, update } = useSession();
+    useEffect(() => {
+        const interval = setInterval(() => {
+          update(); // extend client session
+          // TODO request token refresh from server
+        }, 1000 * 60 * 60)
+        return () => clearInterval(interval)
+      }, [update]);
     useEffect(() => {
         async function fetchRecipes() {
             const res = await fetch("/api/feed");

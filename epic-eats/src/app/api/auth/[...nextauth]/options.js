@@ -29,16 +29,13 @@ export const options = {
     ],
     pages: {
         signIn: '/login',
-        signOut: '/auth/signout',
-        error: '/auth/error', // Error code passed in query string as ?error=
-        verifyRequest: '/auth/verify-request', // (used for check email message)
-        newUser: '/auth/new-user' // New users will be directed here on first sign in (leave the property out if not of interest)
   },
     session:{
         strategy: "jwt",
+        maxAge: 4*60*60
     },
     callbacks: {
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account, trigger, session  }) {
             if (user) {
                 return {
                   ...token,
@@ -48,6 +45,10 @@ export const options = {
                   },
                 }
               }
+            if (trigger === "update" && session) {
+                token = {...token, user : session}
+                return token;
+              };
             return token;
         },
         async session({session, token}) {
