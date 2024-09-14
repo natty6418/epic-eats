@@ -12,5 +12,5 @@ export async function middleware(req) {
 
 
 export const config = {
-    matcher: ['/feed', '/profile/:path','/profile/me', '/recipe', '/create', '/saved', '/search']
+    matcher: ['/feed', '/profile/:path','/profile/me', '/recipe', '/create', '/saved', '/search', '/chat']
 };
