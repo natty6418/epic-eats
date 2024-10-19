@@ -1,5 +1,5 @@
 # Epic Eats 
-[Visit site](https://epic-eats.vercel.app/home)
+[Visit Site](https://epic-eats.vercel.app/home)
 ## Overview
 
 Looking for a place to share and discover delightful recepies? Then you are at the right spot.
