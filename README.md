@@ -1,5 +1,5 @@
 # Epic Eats 
-
+[Visit Site](https://epic-eats.vercel.app/home)
 ## Overview
 
 Looking for a place to share and discover delightful recepies? Then you are at the right spot.
@@ -94,11 +94,6 @@ An Example of Comment:
 ![list](./epic-eats/documentation/search.png)
 
 
-
-## Site map
-
-[Site Map](./epic-eats/documentation/site-map.jpg)
-
 ## User Stories or Use Cases
 
 
@@ -136,7 +131,6 @@ An Example of Comment:
 22 points total
 
 
-## [Link to Initial Main Project File](./epic-eats/src/app/page.js)
 
 
 
