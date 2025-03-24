@@ -45,5 +45,14 @@
     "mockingoose": "^2.16.2",
     "postcss": "^8",
     "tailwindcss": "^3"
+  },
+  "optionalDependencies": {
+    "@aws-sdk/credential-providers": "^3.772.0",
+    "aws4": "^1.13.2",
+    "gcp-metadata": "^5.3.0",
+    "kerberos": "^2.2.2",
+    "mongodb-client-encryption": "^6.3.0",
+    "snappy": "^7.2.2",
+    "socks": "^2.8.4"
   }
 }
