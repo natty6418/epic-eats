@@ -20,7 +20,7 @@ function CreateRecipeForm() {
   const [ingredients, setIngredients] = useState([{ ingredient: '', quantity: '' }]);
   const [instructions, setInstructions] = useState('');
   const [description, setDescription] = useState('');
-  const [image, setImage] = useState("https://via.placeholder.com/800");
+  const [image, setImage] = useState("");
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cookTime, setCookTime] = useState('');
@@ -134,94 +134,258 @@ function CreateRecipeForm() {
                     name="title"
                     required
                     placeholder="What's your delicious creation called?"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 text-lg"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-lg focus:outline-none transition-all duration-200 text-lg"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ingredients</label>
-              {ingredients.map((ingredient, index) => (
-                <div key={index} className="flex flex-wrap gap-3 mb-3">
-                  <input
-                    type="text"
-                    name="ingredient[]"
-                    placeholder="Ingredient"
-                    required
-                    className="input-field flex-1 min-w-0 sm:flex-auto sm:w-auto"
-                    value={ingredient.ingredient}
-                    onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    name="quantity[]"
-                    placeholder="Quantity"
-                    required
-                    className="input-field flex-1 min-w-0 sm:flex-auto sm:w-auto"
-                    value={ingredient.quantity}
-                    onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={index === ingredients.length - 1 ? addIngredient : () => removeIngredient(index)}
-                    className={`rounded-lg px-3 py-2 text-white ${index === ingredients.length - 1 ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600' : 'bg-red-500 hover:bg-red-600'}`}
-                    style={{ minWidth: '2rem' }}
-                    aria-label={index === ingredients.length - 1 ? 'Add ingredient' : 'Remove ingredient'}
-                  >
-                    {index === ingredients.length - 1 ? '+' : '-'}
-                  </button>
+                {/* Ingredients */}
+                <div className="space-y-4">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                    <ListBulletIcon className="w-5 h-5 text-orange-500" />
+                    Ingredients
+                  </label>
+                  <div className="space-y-3">
+                    {ingredients.map((ingredient, index) => (
+                      <div key={index} className="flex gap-3 items-center p-3 bg-gray-50 rounded-xl">
+                        <div className="flex-1">
+                          <input
+                            type="text"
+                            name="ingredient[]"
+                            placeholder="Ingredient name"
+                            required
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-md focus:outline-none transition-all duration-200"
+                            value={ingredient.ingredient}
+                            onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <input
+                            type="text"
+                            name="quantity[]"
+                            placeholder="Amount"
+                            required
+                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-md focus:outline-none transition-all duration-200"
+                            value={ingredient.quantity}
+                            onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={index === ingredients.length - 1 ? addIngredient : () => removeIngredient(index)}
+                          className={`p-2 rounded-lg text-white transition-all duration-200 ${
+                            index === ingredients.length - 1 
+                              ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600' 
+                              : 'bg-red-500 hover:bg-red-600'
+                          }`}
+                          aria-label={index === ingredients.length - 1 ? 'Add ingredient' : 'Remove ingredient'}
+                        >
+                          {index === ingredients.length - 1 ? (
+                            <PlusIcon className="w-5 h-5" />
+                          ) : (
+                            <XMarkIcon className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <textarea
-                id="description"
-                name="description"
-                rows="4"
-                required
-                className="input-field"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              ></textarea>
-            </div>
+                {/* Description */}
+                <div className="space-y-2">
+                  <label htmlFor="description" className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                    <DocumentTextIcon className="w-5 h-5 text-orange-500" />
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    required
+                    placeholder="Tell us about your recipe - what makes it special?"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-lg focus:outline-none transition-all duration-200 resize-none"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  ></textarea>
+                </div>
 
-            <div>
-              <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
-              <textarea
-                id="instructions"
-                name="instructions"
-                rows="8"
-                required
-                className="input-field"
-                value={instructions}
-                onChange={(e) => setInstructions(e.target.value)}
-              ></textarea>
-            </div>
+                {/* Instructions */}
+                <div className="space-y-2">
+                  <label htmlFor="instructions" className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                    <ListBulletIcon className="w-5 h-5 text-orange-500" />
+                    Step-by-Step Instructions
+                  </label>
+                  <textarea
+                    id="instructions"
+                    name="instructions"
+                    rows="8"
+                    required
+                    placeholder="Walk us through your cooking process step by step..."
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-lg focus:outline-none transition-all duration-200 resize-none"
+                    value={instructions}
+                    onChange={(e) => setInstructions(e.target.value)}
+                  ></textarea>
+                </div>
 
-            <div className="relative">
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">Recipe Image</label>
-              <img src={image} className="relative mt-1 block w-full h-32 rounded-lg object-cover opacity-20" />
-              <CldUploadWidget signatureEndpoint={'/api/sign-image'} options={{ sources: ['local', 'url', 'unsplash'] }}
-                onSuccess={(response) => setImage(response.info.secure_url)}
-              >
-                {({ open }) => (
-                  <button
-                    type="button"
-                    onClick={open}
-                    className='btn-secondary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2'
+                {/* Recipe Image */}
+                <div className="space-y-4">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                    <PhotoIcon className="w-5 h-5 text-orange-500" />
+                    Recipe Image
+                  </label>
+                  <div className="relative group">
+                    <div className="w-full h-48 rounded-xl border-2 border-dashed border-gray-300 group-hover:border-orange-400 transition-all duration-200 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                      {image ? (
+                        <img 
+                          src={image} 
+                          className="w-full h-full object-cover" 
+                          alt="Recipe preview"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <PhotoIcon className="w-16 h-16 text-gray-400 mx-auto mb-3" />
+                            <p className="text-gray-500 text-sm font-medium">Click to upload recipe image</p>
+                            <p className="text-gray-400 text-xs mt-1">PNG, JPG up to 10MB</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute inset-0 bg-black bg-opacity-20 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <CldUploadWidget signatureEndpoint={'/api/sign-image'} options={{ sources: ['local', 'url', 'unsplash'] }}
+                        onSuccess={(response) => setImage(response.info.secure_url)}
+                      >
+                        {({ open }) => (
+                          <button
+                            type="button"
+                            onClick={open}
+                            className="bg-white text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-200 flex items-center gap-2 shadow-lg"
+                          >
+                            <PhotoIcon className="w-5 h-5" />
+                            {image ? 'Change Image' : 'Upload Image'}
+                          </button>
+                        )}
+                      </CldUploadWidget>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label htmlFor="cookTime" className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                      <ClockIcon className="w-5 h-5 text-orange-500" />
+                      Cook Time (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      id="cookTime"
+                      name="cookTime"
+                      placeholder="30"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-lg focus:outline-none transition-all duration-200"
+                      value={cookTime}
+                      onChange={(e) => setCookTime(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="tags" className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                      <FireIcon className="w-5 h-5 text-orange-500" />
+                      Tags (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      id="tags"
+                      name="tags"
+                      placeholder="italian, pasta, comfort food"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-lg focus:outline-none transition-all duration-200"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-6">
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
                   >
-                    <PlusIcon className="w-5 h-5" /> Upload Image
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Creating Recipe...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircleIcon className="w-5 h-5" />
+                        Publish Recipe
+                      </>
+                    )}
                   </button>
-                )}
-              </CldUploadWidget>
+                  {error && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                      <p className="text-red-600 text-center font-medium">{error}</p>
+                    </div>
+                  )}
+                </div>
+              </form>
             </div>
+          </div>
 
-            <button type="submit" className="btn-primary w-full">Submit Recipe</button>
-            {error && <p className="text-red-500 text-center">{error}</p>}
-          </form>
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8 space-y-6">
+              {/* Tips Card */}
+              <div className="card p-6 bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-200">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <SparklesIcon className="w-5 h-5 text-orange-500" />
+                  Pro Tips
+                </h3>
+                <ul className="space-y-3 text-sm text-gray-600">
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <span>Use descriptive titles that make your recipe stand out</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <span>Include specific measurements for better results</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <span>Add helpful cooking tips in your instructions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <span>Use relevant tags to help others discover your recipe</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Preview Card */}
+              <div className="card p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  <PhotoIcon className="w-5 h-5 text-orange-500" />
+                  Preview
+                </h3>
+                <div className="space-y-3">
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-600">Title:</span>
+                    <p className="text-gray-800">{title || "Your recipe title will appear here"}</p>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-600">Ingredients:</span>
+                    <p className="text-gray-800">{ingredients.length} item{ingredients.length !== 1 ? 's' : ''}</p>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-600">Cook Time:</span>
+                    <p className="text-gray-800">{cookTime || '30'} minutes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
