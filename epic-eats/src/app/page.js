@@ -1,4 +1,3 @@
-"use client";
 import { options } from './api/auth/[...nextauth]/options';
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";

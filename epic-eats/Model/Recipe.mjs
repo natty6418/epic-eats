@@ -23,7 +23,8 @@ const recipeSchema = new Schema({
         })
       }],
       createdAt: {type: Date, required: true},
-      image: {type: String}
+      image: {type: String},
+      likes: {type: [{ type: Schema.Types.ObjectId, ref: 'User' }], default: []}
 });
 
 function validateRecipe(recipe){

@@ -1,212 +1,346 @@
 "use client";
-import React, { useState} from "react";
+import React, { useState, useCallback } from "react";
 import Link from 'next/link';
-import { useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { 
+  HeartIcon, 
+  BookmarkIcon, 
+  EyeIcon, 
+  UserPlusIcon, 
+  UserMinusIcon,
+  ClockIcon,
+  FireIcon,
+  StarIcon,
+  ShareIcon
+} from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolidIcon, BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
+
 export default function RecipeCard({ recipe, currentUser, saved, setCurrentUser }) {
-    const currentUserId = currentUser?._id;
-    const [isSaved, setIsSaved] = useState(saved);
-    const [user, setUser] = useState(recipe.userId);
-    const [showFullDescription, setShowFullDescription] = useState(false);
-    const searchParams = useSearchParams()
-    const createQueryString = useCallback(
-        (name, value) => {
-            const params = new URLSearchParams(searchParams)
-            params.set(name, value)
+	const currentUserId = currentUser?._id;
+	const [isSaved, setIsSaved] = useState(saved);
+	const [user, setUser] = useState(recipe.userId);
+	const [showFullDescription, setShowFullDescription] = useState(false);
+	const [isLiked, setIsLiked] = useState(recipe.likes?.includes(currentUser?._id));
+	const [likesCount, setLikesCount] = useState(recipe.likes?.length || 0);
+	const [isFollowing, setIsFollowing] = useState(currentUser?.following?.includes(user._id) || false);
+	const [isLoading, setIsLoading] = useState(false);
+	const searchParams = useSearchParams();
 
-            return params.toString()
-        },
-        [searchParams]
-    )
-    const toggleDescription = () => {
-        setShowFullDescription(!showFullDescription);
-    };
-    const previewDescriptions = recipe?.description.length > 150
-        ? recipe?.description.substring(0, 150) + '...'
-        : recipe?.description;
+	const createQueryString = useCallback(
+		(name, value) => {
+			const params = new URLSearchParams(searchParams)
+			params.set(name, value)
+			return params.toString()
+		},
+		[searchParams]
+	);
 
-    const unfollow = async () => {
-        const res = await fetch(`/api/user/unfollow`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                currentUserId,
-                userToUnfollowId: user._id
-            })
-        })
-        const data = await res.json();
-        if (data.error) {
-            console.log(data.error);
-            return;
-        }
-        setUser(prev => ({
-            ...prev,
-            followers: prev.followers.filter(follower => follower !== currentUserId)
-        }));
-        setCurrentUser(prev => ({
-            ...prev,
-            following: prev.following.filter(following => following !== user._id)
-        }));
-    }
-    const follow = async () => {
-        const res = await fetch(`/api/user/follow`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                currentUserId,
-                userToFollowId: user._id
-            })
-        })
-        const data = await res.json();
-        if (data.error) {
-            console.log(data.error);
-            return;
-        }
-        setUser(prev => ({
-            ...prev,
-            followers: [...prev.followers, currentUserId]
-        }));
-        setCurrentUser(prev => ({
-            ...prev,
-            following: [...prev.following, user._id]
-        }));
-    }
+	const toggleDescription = () => {
+		setShowFullDescription(!showFullDescription);
+	};
 
+	const previewDescriptions = recipe?.description.length > 120
+		? recipe?.description.substring(0, 120) + '...'
+		: recipe?.description;
 
-    function followBtn() {
-        return (
-            <button
-                onClick={follow}
-                className="border text-blue-400 hover:bg-blue-400 hover:text-white rounded-full px-4 py-2 transition-colors duration-300 ease-in-out"
+	const formatDate = (date) => {
+		const now = new Date();
+		const recipeDate = new Date(date);
+		const diffTime = Math.abs(now - recipeDate);
+		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+		
+		if (diffDays === 1) return '1 day ago';
+		if (diffDays < 7) return `${diffDays} days ago`;
+		if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+		return recipeDate.toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
+	};
 
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className=" w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                </svg>
+	const unfollow = async () => {
+		setIsLoading(true);
+		const res = await fetch(`/api/user/unfollow`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				currentUserId,
+				userToUnfollowId: user._id
+			})
+		});
+		const data = await res.json();
+		if (data.error) {
+			console.log(data.error);
+			setIsLoading(false);
+			return;
+		}
+		setUser(prev => ({
+			...prev,
+			followers: prev.followers.filter(follower => follower !== currentUserId)
+		}));
+		setCurrentUser(prev => ({
+			...prev,
+			following: prev.following.filter(following => following !== user._id)
+		}));
+		setIsFollowing(false);
+		setIsLoading(false);
+	};
 
-            </button>
-        )
-    }
-    function unfollowBtn() {
-        return (
-            <button
-                onClick={unfollow}
-                className="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-full px-4 py-2 transition-colors duration-300 ease-in-out"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                </svg>
-            </button>
-        )
-    }
-    function FollowStatus() {
-        if (currentUserId === user._id) {
-            return (
-                <div></div>
-            )
-        }
-        if (currentUser?.following.includes(user._id)) {
-            return unfollowBtn();
-        } else {
-            return followBtn();
-        }
-    }
-    const saveRecipe = async () => {
+	const follow = async () => {
+		setIsLoading(true);
+		const res = await fetch(`/api/user/follow`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				currentUserId,
+				userToFollowId: user._id
+			})
+		});
+		const data = await res.json();
+		if (data.error) {
+			console.log(data.error);
+			setIsLoading(false);
+			return;
+		}
+		setUser(prev => ({
+			...prev,
+			followers: [...prev.followers, currentUserId]
+		}));
+		setCurrentUser(prev => ({
+			...prev,
+			following: [...prev.following, user._id]
+		}));
+		setIsFollowing(true);
+		setIsLoading(false);
+	};
 
-        const res = await fetch(`/api/user/savedRecipes/save`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({recipeId: recipe._id})
-        })
-        const data = await res.json();
-        if (data.error) {
-            console.log(data.error);
-            return;
-        }
-        console.log("No error");
-        setIsSaved(true);
-    }
-    const removeRecipe = async () => {
-        const res = await fetch(`/api/user/savedRecipes/remove`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({recipeId: recipe._id})
-        })
-        const data = await res.json();
-        if (data.error) {
-            console.log(data.error);
-            return;
-        }
-        setIsSaved(false);
-    }
+	const saveRecipe = async () => {
+		setIsLoading(true);
+		const res = await fetch(`/api/user/savedRecipes/save`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({recipeId: recipe._id})
+		});
+		const data = await res.json();
+		if (data.error) {
+			console.log(data.error);
+			setIsLoading(false);
+			return;
+		}
+		setIsSaved(true);
+		setIsLoading(false);
+	};
 
-    const SavedBtn = () => {
-        if (isSaved) {
-            return (
-                <button
-                    onClick={removeRecipe}
-                    className="flex-grow text-center text-blue-400 font-medium py-2 px-4 rounded-br-lg transition-colors duration-300 ease-in-out bg-white hover:bg-green-400 hover:text-white">
-                    Saved
-                </button>
-            )
-        } else {
-            return (
-                <button
-                    onClick={saveRecipe}
-                    className="flex-grow text-center text-blue-400 font-medium py-2 px-4 rounded-br-lg transition-colors duration-300 ease-in-out bg-white hover:bg-green-400 hover:text-white">
-                    Save
-                </button>
-            )
-        }
-    }
-    return (
-        <div className="bg-white rounded-lg shadow-md pt-2 hover:shadow-lg transition-shadow duration-300 ease-in-out pb-5 mb-4 relative h-full">
-            <div className="flex flex-row items-center justify-between m-2">
-                <Link href={`/profile/${user._id}`} >
-                    <div className="flex flex-row w-fit">
-                        <img
-                            src={user?.profilePic || "https://via.placeholder.com/150"}
-                            alt="Profile Picture"
-                            className="w-10 h-10 object-cover rounded-full border-2 border-white relative top-0"
-                        />
-                        <div className="flex items-center space-x-2 ml-2">
-                            <p className="text-gray-800 font-semibold">{user?.username}</p>
-                            <p className="text-sm text-gray-600">{new Date(recipe.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        </div>
-                    </div>
-                </Link>
-                <FollowStatus />
-            </div>
-            <img className="w-full h-48 object-cover " src={recipe.image} alt="Recipe Image" />
-            <div className="p-4">
-                <h3 className="font-semibold text-lg text-gray-800">{recipe.title}</h3>
-                <p className="text-gray-600">
-                    {showFullDescription ? recipe.description : previewDescriptions}
-                    {recipe.description.length > 150 &&
-                        <span
-                            onClick={toggleDescription}
-                            className="text-blue-500 hover:text-blue-700 text-sm font-semibold mt-2 cursor-pointer">
-                            {showFullDescription ? 'Show Less' : 'Show More'}
-                        </span>
-                    }
-                </p>
-            </div>
-            <div className="absolute flex bottom-0 w-full mt-3">
-                <Link href={'/recipe' + '?' + createQueryString("id", recipe._id)} className="flex-grow text-center text-blue-400 font-medium py-2 px-4 rounded-bl-lg transition-colors duration-300 ease-in-out bg-white hover:bg-blue-400 hover:text-white">
-                    View
-                </Link>
-                <SavedBtn />
-            </div>
+	const removeRecipe = async () => {
+		setIsLoading(true);
+		const res = await fetch(`/api/user/savedRecipes/remove`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({recipeId: recipe._id})
+		});
+		const data = await res.json();
+		if (data.error) {
+			console.log(data.error);
+			setIsLoading(false);
+			return;
+		}
+		setIsSaved(false);
+		setIsLoading(false);
+	};
 
-        </div>
-    );
+	const toggleLike = async () => {
+		if (!currentUser) {
+			// or redirect to login
+			return;
+		}
+		setIsLoading(true);
+		const url = `/api/recipe/${recipe._id}/${isLiked ? 'unlike' : 'like'}`;
+		try {
+			const res = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+			const data = await res.json();
+			if (data.error) {
+				console.error('Error toggling like:', data.error);
+			} else {
+				setIsLiked(!isLiked);
+				setLikesCount(data.likes.length);
+			}
+		} catch (error) {
+			console.error('Network error:', error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
+	const FollowButton = () => {
+		if (currentUserId === user._id) {
+			return null;
+		}
+
+		if (isFollowing) {
+			return (
+				<button
+					onClick={unfollow}
+					disabled={isLoading}
+					className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-all duration-200 disabled:opacity-50"
+				>
+					<UserMinusIcon className="w-4 h-4" />
+					<span className="hidden sm:inline">Following</span>
+				</button>
+			);
+		} else {
+			return (
+				<button
+					onClick={follow}
+					disabled={isLoading}
+					className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-full transition-all duration-200 disabled:opacity-50"
+				>
+					<UserPlusIcon className="w-4 h-4" />
+					<span className="hidden sm:inline">Follow</span>
+				</button>
+			);
+		}
+	};
+
+	return (
+		<div className="card group hover:shadow-2xl transition-all duration-300 overflow-hidden h-full flex flex-col">
+			{/* Header with User Info */}
+			<div className="p-4 pb-2">
+				<div className="flex items-center justify-between">
+					<Link href={`/profile/${user._id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+						<div className="relative">
+							<img
+								src={user?.profilePic || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"}
+								alt={user?.username}
+								className="w-10 h-10 object-cover rounded-full border-2 border-white shadow-sm"
+							/>
+							<div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+						</div>
+						<div>
+							<p className="font-semibold text-gray-800 text-sm">{user?.username}</p>
+							<p className="text-xs text-gray-500">{formatDate(recipe.createdAt)}</p>
+						</div>
+					</Link>
+					<FollowButton />
+				</div>
+			</div>
+
+			{/* Recipe Image */}
+			<div className="relative overflow-hidden">
+				<img 
+					className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
+					src={recipe.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop"} 
+					alt={recipe.title}
+				/>
+				<div className="absolute top-3 right-3">
+					<button
+						onClick={toggleLike}
+						disabled={isLoading}
+						className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{isLiked ? (
+							<HeartSolidIcon className="w-5 h-5 text-red-500" />
+						) : (
+							<HeartIcon className="w-5 h-5 text-gray-600" />
+						)}
+						<span className="text-xs font-medium text-gray-700">{likesCount}</span>
+					</button>
+				</div>
+				
+				{/* Recipe Stats Overlay */}
+				<div className="absolute bottom-3 left-3 right-3">
+					<div className="flex items-center gap-3 text-white">
+						<div className="flex items-center gap-1 bg-black/20 backdrop-blur-sm rounded-full px-2 py-1">
+							<ClockIcon className="w-3 h-3" />
+							<span className="text-xs font-medium">{recipe.cookTime || '30'} min</span>
+						</div>
+						<div className="flex items-center gap-1 bg-black/20 backdrop-blur-sm rounded-full px-2 py-1">
+							<StarIcon className="w-3 h-3" />
+							<span className="text-xs font-medium">{recipe.rating || '4.5'}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{/* Recipe Content */}
+			<div className="p-4 flex-1 flex flex-col">
+				<h3 className="font-bold text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors">
+					{recipe.title}
+				</h3>
+				
+				<p className="text-gray-600 text-sm leading-relaxed flex-1">
+					{showFullDescription ? recipe.description : previewDescriptions}
+					{recipe.description.length > 120 && (
+						<button
+							onClick={toggleDescription}
+							className="text-orange-500 hover:text-orange-600 text-sm font-medium ml-1 transition-colors"
+						>
+							{showFullDescription ? 'Show less' : 'Show more'}
+						</button>
+					)}
+				</p>
+
+				{/* Recipe Tags */}
+				{recipe.tags && recipe.tags.length > 0 && (
+					<div className="flex flex-wrap gap-1 mt-3">
+						{recipe.tags.slice(0, 3).map((tag, index) => (
+							<span
+								key={index}
+								className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium"
+							>
+								#{tag}
+							</span>
+						))}
+						{recipe.tags.length > 3 && (
+							<span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+								+{recipe.tags.length - 3}
+							</span>
+						)}
+					</div>
+				)}
+			</div>
+
+			{/* Action Buttons */}
+			<div className="p-4 pt-0">
+				<div className="flex gap-2">
+					<Link 
+						href={`/recipe?${createQueryString("id", recipe._id)}`}
+						className="flex-1 btn-primary text-center flex items-center justify-center gap-2 py-2.5"
+					>
+						<EyeIcon className="w-4 h-4" />
+						View Recipe
+					</Link>
+					
+					<button
+						onClick={isSaved ? removeRecipe : saveRecipe}
+						disabled={isLoading}
+						className={`px-4 py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 ${
+							isSaved 
+								? 'bg-green-100 text-green-700 hover:bg-green-200' 
+								: 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+						}`}
+					>
+						{isSaved ? (
+							<BookmarkSolidIcon className="w-4 h-4" />
+						) : (
+							<BookmarkIcon className="w-4 h-4" />
+						)}
+					</button>
+					
+					<button className="px-4 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg transition-all duration-200">
+						<ShareIcon className="w-4 h-4" />
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 }

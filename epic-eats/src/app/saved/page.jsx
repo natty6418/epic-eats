@@ -18,14 +18,21 @@ function SearchBar({ recipes, setRecipes }) {
     }
     return (
         <Suspense fallback={searchBarFallback()}>
-            <div className="flex justify-center items-center m-8">
-                <input type="text" placeholder="Search for recipes" className="border border-gray-300 p-2 rounded-full w-1/2" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                <button onClick={searchRecipes} className="bg-blue-500 text-white p-2 rounded-full ml-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-
-                </button>
+            <div className="max-w-2xl mx-auto mb-6">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-3">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search saved recipes..."
+                    className="input-field pr-28"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button onClick={searchRecipes} className="btn-primary absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2">
+                    Search
+                  </button>
+                </div>
+              </div>
             </div>
         </Suspense>
     );
@@ -58,29 +65,29 @@ export default function SavedRecipes() {
         , []);
 
     function RecipeFeed() {
-        if (isLoading) {
-            return <Loading />;
-        }
+        if (isLoading) return <Loading />;
         return (
-            <main className="bg-gray-50 flex flex-col items-center py-8 min-h-screen">
-                <section className="w-full max-w-4xl p-4 items-center">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-6 mx-auto text-center">Saved Recipes</h2>
-                    <SearchBar recipes={recipes} setRecipes={setRecipes} />
-                    <div className="grid grid-cols-1 gap-6 m-auto max-w-md">
-                        {
-                            recipes.length > 0 && !!user ? recipes.map((recipe) => {
-                                return (
-                                    <RecipeCard key={recipe._id} recipe={recipe} currentUser={user} saved={true} setCurrentUser={setUser}/>
-                                )
-                            }) : <p className="text-gray-800">No recipes found</p>
-                        }
-                    </div>
-                </section>
-            </main>
+            <div className="min-h-screen px-4 py-10">
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-6">
+                  <h1 className="text-3xl font-bold gradient-text font-poppins">Saved Recipes</h1>
+                  <p className="text-gray-600 mt-2">Your bookmarked favorites in one place</p>
+                </div>
+                <SearchBar recipes={recipes} setRecipes={setRecipes} />
+                <div className="grid grid-cols-1 gap-6 m-auto max-w-md">
+                  {recipes.length > 0 && !!user ? (
+                    recipes.map((recipe) => (
+                      <RecipeCard key={recipe._id} recipe={recipe} currentUser={user} saved={true} setCurrentUser={setUser} />
+                    ))
+                  ) : (
+                    <p className="text-gray-600 text-center">No recipes found</p>
+                  )}
+                </div>
+              </div>
+            </div>
         )
     }
     return (
         <RecipeFeed />
     )
 }
-

@@ -1,170 +1,180 @@
 "use client";
-import React, { use } from "react";
+import React, { useEffect, useState } from "react";
 import Link from 'next/link';
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 import Loading from "@/components/Loading";
 import RecipeCard from "@/components/RecipeCard";
-import Dialog from '@mui/material/Dialog';
 import UserCard from "@/components/UserCard";
+import { Tab } from '@headlessui/react';
+import { UserIcon, BookOpenIcon, UsersIcon } from '@heroicons/react/24/outline';
 
-export default function ProfilePage({params}){
-    const [user, setUser] = useState(null);
-    const [myRecipes, setMyRecipes] = useState([]);
-    const [followers, setFollowers] = useState([]);
-    const [following, setFollowing] = useState([]);
-    const [showFollowersOrFollowing, setShowFollowersOrFollowing] = useState("followers");
-    const [open, setOpen] = useState(false);
-    const { data: session } = useSession();
-    const { id } = params;
-    useEffect(() => {
-        const fetchUser = async () => {
-            const res = await fetch(`/api/user/${id}`);
-            const data = await res.json();
-            if (data.error) {
-                console.log("error", data.error);
-                return;
-            }
-            setUser(data);
-        };
-        fetchUser();
-    }
-    , [session]);
-    useEffect(() => {
-        const fetchFollowers = async () => {
-            const res = await fetch(`/api/user/${id}/followers`);
-            const data = await res.json();
-            setFollowers(data);
-        };
-        fetchFollowers();
-    },
-    []);
-    useEffect(() => {
-        const fetchFollowing = async () => {
-            const res = await fetch(`/api/user/${id}/following`);
-            const data = await res.json();
-            setFollowing(data);
-        };
-        fetchFollowing();
-    },
-    []);
-    function Followers(){
-        return (
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-                <h2 className="font-semibold text-gray-800 mb-2">Followers</h2>
-                <ul className="text-gray-600">
-                    {followers.length > 0 ? followers.map((follower) => (
-                        <UserCard key={follower._id} user={follower} currentUserId={user._id}/>
-                    )) : <p className="text-gray-800">No followers found</p>}
-                </ul>
-            </div>
-        )
-    }
-    function Following(){
-        return (
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-                <h2 className="font-semibold text-gray-800 mb-2">Following</h2>
-                <ul className="text-gray-600">
-                    {following.length > 0 ? following.map((follow) => (
-                        <UserCard key={follow._id} user={follow} currentUserId={user._id}/>
-                    )) : <p className="text-gray-800">Not following anyone</p>}
-                </ul>
-            </div>
-        )
-    
-    }
-
-    useEffect(() => {
-        const fetchMyRecipes = async () => {
-            const res = await fetch(id === 'me'?`/api/recipe/user-recipe`:`/api/recipe/user-recipe/${id}`); 
-            const data = await res.json();
-            setMyRecipes(data);
-        };
-        fetchMyRecipes();
-    }
-    , [user]);
-    const profilePage = () => {
-        if (!user) {
-            return <Loading />;
-        }
-        
-            return (
-                <main className="bg-gray-50 p-8 flex justify-center items-center">
-                <div className="container p-8 h-full max-w-5xl">
-                <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between sm:h-64">
-                <div className="flex flex-col sm:flex-row items-center">
-                  <img src={user?.profilePic || "https://via.placeholder.com/150"} alt="Profile Photo" className="rounded-full w-32 h-32 mb-4 sm:mb-0 object-cover"/>
-                  <div className="sm:ml-6 flex flex-col justify-center items-center sm:items-start text-center sm:text-left w-full">
-                    <h1 className="text-xl font-semibold">{user?.username}</h1>
-                    <p className="text-gray-600">{user?.email}</p>
-                    <p className="text-gray-600">{user?.bio}</p>
-                    {id === 'me' && (
-                      <Link href="/profile/me/edit"
-                        className="mt-4 text-blue-500 hover:text-blue-700 font-light underline cursor-pointer"
-                      >
-                        Edit Profile
-                      </Link>
-                    )}
-                  </div>
-                </div>
-                <div 
-                className="flex flex-row sm:flex-col items-center sm:items-start justify-around sm:justify-start w-full sm:w-auto mt-4 sm:mt-0">
-                  <p className="font-medium">{myRecipes.length || "0"} recipes</p>
-                  <p 
-                  onClick={() => {
-                        setShowFollowersOrFollowing("following");
-                        setOpen(true);
-                    }
-                  }
-                  className="font-medium cursor-pointer">{user?.following.length || "0"} following</p>
-                  <p 
-                  onClick={() => {
-                        setShowFollowersOrFollowing("followers");
-                        setOpen(true);
-                    }
-                }
-                  className="font-medium cursor-pointer">{user?.followers.length || "0"} followers</p>
-                </div>
-              </div>
-              
-            
-                <div className="mt-6 flex flex-col max-w-md mx-auto">
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className="font-semibold text-gray-800 mb-2">Recipes</h2>
-                <div className="grid grid-cols-1 gap-6">
-
-                        {
-                            myRecipes?.length > 0 ? myRecipes?.map((recipe) => (
-                                <RecipeCard key={recipe._id} recipe={{...recipe, userId: user}} currentUser={user} saved={user?.savedRecipes?.includes(recipe._id)} setCurrentUser={setUser}/>
-                            )) : <p className="text-gray-800">No recipes found</p>
-                        }
-                    </div>
-                    </div>
-                </div>
-                <Dialog
-                    open={open}
-                    onClose={() => setOpen(false)}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                    className="flex justify-center items-center border-none rounded-lg shadow-lg"
-                >
-                <div className="mt-6 flex flex-col mx-auto w-[400px] border-none"> 
-                <div className="bg-white rounded-lg shadow-lg p-3">
-                        {showFollowersOrFollowing === "followers" ? <Followers /> : <Following />}
-                    </div>
-                </div>
-                </Dialog>
-            </div>
-            </main>
-            )
-        
-    }
-    return (            
-        
-        <>
-        {profilePage()}
-        </>
-
-    )
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
 }
 
+export default function ProfilePage({ params }) {
+  const [user, setUser] = useState(null);
+  const [myRecipes, setMyRecipes] = useState([]);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { data: session } = useSession();
+  const { id } = params;
+  const isMyProfile = session?.user?.id === id || id === 'me';
+
+  useEffect(() => {
+    const userId = id === 'me' ? session?.user?.id : id;
+    if (!userId) return;
+
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const [userRes, recipesRes, followersRes, followingRes] = await Promise.all([
+          fetch(`/api/user/${userId}`),
+          fetch(`/api/recipe/user-recipe/${userId}`),
+          fetch(`/api/user/${userId}/followers`),
+          fetch(`/api/user/${userId}/following`),
+        ]);
+
+        const userData = await userRes.json();
+        const recipesData = await recipesRes.json();
+        const followersData = await followersRes.json();
+        const followingData = await followingRes.json();
+
+        if (userData.error) throw new Error(userData.error);
+        
+        setUser(userData);
+        setMyRecipes(recipesData);
+        setFollowers(followersData);
+        setFollowing(followingData);
+
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [id, session]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    return <div className="text-center py-20">User not found.</div>;
+  }
+
+  const tabs = [
+    { name: 'Recipes', icon: BookOpenIcon, count: myRecipes.length },
+    { name: 'Followers', icon: UserIcon, count: followers.length },
+    { name: 'Following', icon: UsersIcon, count: following.length },
+  ];
+
+  return (
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        {/* Profile Header */}
+        <div className="card p-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="relative">
+              <img
+                src={user.profilePic || "https://via.placeholder.com/150"}
+                alt="Profile Photo"
+                className="w-40 h-40 rounded-full object-cover border-8 border-white shadow-lg"
+              />
+              <div className="absolute -bottom-2 -right-2 w-12 h-12 gradient-bg rounded-full flex items-center justify-center text-white font-bold text-lg">
+                {myRecipes.length}
+              </div>
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-4xl font-bold gradient-text font-poppins mb-2">{user.username}</h1>
+              <p className="text-gray-600 mb-4">{user.email}</p>
+              <p className="text-gray-700 leading-relaxed mb-6 max-w-xl mx-auto md:mx-0">{user.bio || 'No bio yet.'}</p>
+              {isMyProfile ? (
+                <Link href="/profile/me/edit" className="btn-primary">
+                  Edit Profile
+                </Link>
+              ) : (
+                // NOTE: Follow/Unfollow button logic would go here
+                <button className="btn-secondary">Follow</button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <Tab.Group>
+          <Tab.List className="flex space-x-1 rounded-xl bg-orange-500/20 p-1 mb-8">
+            {tabs.map((tab) => (
+              <Tab
+                key={tab.name}
+                className={({ selected }) =>
+                  classNames(
+                    'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-orange-700',
+                    'ring-white ring-opacity-60 ring-offset-2 ring-offset-orange-400 focus:outline-none focus:ring-2',
+                    selected
+                      ? 'bg-white shadow'
+                      : 'text-orange-100 hover:bg-white/[0.12] hover:text-white'
+                  )
+                }
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <tab.icon className="w-5 h-5" />
+                  {tab.name} ({tab.count})
+                </div>
+              </Tab>
+            ))}
+          </Tab.List>
+          <Tab.Panels className="mt-2">
+            {/* Recipes Panel */}
+            <Tab.Panel className="card p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {myRecipes.length > 0 ? (
+                  myRecipes.map((recipe) => (
+                    <RecipeCard
+                      key={recipe._id}
+                      recipe={{ ...recipe, userId: user }}
+                      currentUser={session?.user}
+                      saved={session?.user?.savedRecipes?.includes(recipe._id)}
+                      setCurrentUser={setUser} // This might need adjustment depending on RecipeCard logic
+                    />
+                  ))
+                ) : (
+                  <p className="text-gray-600 col-span-full text-center py-12">No recipes found.</p>
+                )}
+              </div>
+            </Tab.Panel>
+
+            {/* Followers Panel */}
+            <Tab.Panel className="card p-6">
+              <div className="max-w-md mx-auto space-y-4">
+                {followers.length > 0 ? (
+                  followers.map((follower) => (
+                    <UserCard key={follower._id} user={follower} currentUserId={session?.user?.id} />
+                  ))
+                ) : (
+                  <p className="text-gray-600 text-center py-12">No followers yet.</p>
+                )}
+              </div>
+            </Tab.Panel>
+
+            {/* Following Panel */}
+            <Tab.Panel className="card p-6">
+              <div className="max-w-md mx-auto space-y-4">
+                {following.length > 0 ? (
+                  following.map((follow) => (
+                    <UserCard key={follow._id} user={follow} currentUserId={session?.user?.id} />
+                  ))
+                ) : (
+                  <p className="text-gray-600 text-center py-12">Not following anyone yet.</p>
+                )}
+              </div>
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
+      </div>
+    </div>
+  );
+}

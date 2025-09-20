@@ -75,7 +75,7 @@ function RecipeDetail({ recipeId }) {
             return (
                 <svg 
                 onClick={removeRecipe}
-                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-blue-500">
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-orange-500">
                     <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
                 </svg>
             )
@@ -83,7 +83,7 @@ function RecipeDetail({ recipeId }) {
             return (
                 <svg
                 onClick={saveRecipe}
-                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-blue-500">
+                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-orange-500">
                     <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-18-18ZM20.25 5.507v11.561L5.853 2.671c.15-.043.306-.075.467-.094a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93ZM3.75 21V6.932l14.063 14.063L12 18.088l-7.165 3.583A.75.75 0 0 1 3.75 21Z" />
                 </svg>
 
@@ -123,98 +123,153 @@ function RecipeDetail({ recipeId }) {
         : recipe.instructions;
 
     return (
-        <div className="bg-white shadow-lg rounded-lg p-6 mx-auto max-w-4xl w-full">
-            <Link href={`/profile/${user._id}`}>
-            <div className="flex items-center mb-4">
-                <img
-                    src={user?.profilePic || "https://via.placeholder.com/150"}
-                    alt="Profile Picture"
-                    className="w-14 h-14 object-cover rounded-full border-2 border-white"
-                />
-                <div className="flex items-center space-x-2 ml-2">
-                    <p className="text-gray-800 font-semibold">{user?.username}</p>
-                    <p className="text-sm text-gray-600">{new Date(recipe.createdAt).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                </div>
-            
-            </div>
+        <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="card p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <Link href={`/profile/${user._id}`} className="flex items-center group">
+              <img
+                src={user?.profilePic || "https://via.placeholder.com/150"}
+                alt="Profile Picture"
+                className="w-16 h-16 object-cover rounded-full border-4 border-white group-hover:border-orange-200 transition-all duration-300"
+              />
+              <div className="ml-4">
+                <p className="text-lg font-bold text-gray-800 group-hover:text-orange-600 transition-colors">
+                  {user?.username}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {new Date(recipe.createdAt).toLocaleDateString("en-US", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
             </Link>
-            <div className='flex flex-row space-x-3 py-2 items-center'>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{recipe.title}</h2>
-                <button>
-                    {currentUser._id === user._id ? <Link href={`/recipe/edit/${recipeId}`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-sky-700">
-                            <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
-                            <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
-                        </svg>
-                    </Link>
-                        : <SaveStatus />}
+            <div className="flex items-center gap-4">
+              {currentUser?._id === user?._id ? (
+                <Link href={`/recipe/edit/${recipeId}`} className="text-gray-500 hover:text-orange-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                    <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                    <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
+                  </svg>
+                </Link>
+              ) : (
+                <button className="focus:outline-none">
+                  <SaveStatus />
                 </button>
+              )}
             </div>
-            {recipe.image && <img src={recipe.image} alt={recipe.title} className="w-full h-64 object-cover rounded-md my-4" />}
-            <p className="whitespace-pre-wrap mb-6 text-gray-700 bg-gray-50 p-3 rounded-lg shadow">
-                {recipe.description}
+          </div>
+
+          {/* Title */}
+          <h1 className="text-4xl md:text-5xl font-bold gradient-text font-poppins mb-4 text-center">
+            {recipe.title}
+          </h1>
+
+          {/* Image */}
+          {recipe.image && (
+            <div className="relative my-6 overflow-hidden rounded-2xl shadow-lg">
+              <img src={recipe.image} alt={recipe.title} className="w-full h-80 object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            </div>
+          )}
+
+          {/* Meta */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <span className="chip">{recipe.cookTime || '30'} min</span>
+            {recipe.rating && <span className="chip bg-yellow-100 text-yellow-800">★ {recipe.rating}</span>}
+            {recipe.category && <span className="chip">{recipe.category}</span>}
+            {Array.isArray(recipe.tags) &&
+              recipe.tags.slice(0, 3).map((t, i) => (
+                <span key={i} className="chip">#{t}</span>
+              ))}
+          </div>
+
+          {/* Description */}
+          <div className="card p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Description</h2>
+            <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+              {recipe.description}
             </p>
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Ingredients</h3>
-            <ul className="list-disc pl-5 mb-6 text-gray-700 bg-gray-50 p-3 rounded-lg shadow">
-                {recipe.ingredients.map((item, index) => (
-                    <li key={index} className="mb-1 hover:bg-gray-200 rounded p-1 flex justify-between">
-                        <span className="font-medium">{item.ingredient}</span>
-                        <span className="text-sm font-light text-gray-600">{item.quantity}</span>
+          </div>
+
+          {/* Main Content */}
+          <div className="grid md:grid-cols-5 gap-8">
+            {/* Ingredients */}
+            <div className="md:col-span-2">
+              <div className="card p-6 sticky top-24">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
+                <ul className="space-y-3">
+                  {recipe.ingredients.map((item, index) => (
+                    <li key={index} className="flex justify-between items-center pb-2 border-b border-gray-100">
+                      <span className="font-medium text-gray-800">{item.ingredient}</span>
+                      <span className="text-gray-600">{item.quantity}</span>
                     </li>
-
-                ))}
-            </ul>
-
-            <h3 className="text-xl font-semibold mb-4">Instructions</h3>
-            <p className="whitespace-pre-wrap mb-6 text-gray-700 bg-gray-50 p-3 rounded-lg shadow">
-                {showFullInstructions ? recipe.instructions : instructionsPreview}
-                <button
-                    className="text-blue-500 hover:text-blue-700 cursor-pointer transition duration-300 ease-in-out ml-2"
-                    onClick={toggleInstructions}
-                >
-                    {recipe.instructions.length > 150 && showFullInstructions ? 'Show Less' : 'Show More'}
-                    <i className={`fas ${showFullInstructions ? 'fa-angle-up' : 'fa-angle-down'}`}></i>
-                </button>
-            </p>
-
-            <h3 className="text-xl font-semibold mt-4 mb-4 text-gray-800">Comments</h3>
-
-            <form onSubmit={handleCommentSubmit} className="flex items-center bg-white p-3 rounded-lg shadow-md">
-                <input
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className="flex-grow h-10 p-2 border-0 rounded-md focus:outline-none  resize-none"
-                    placeholder="Add a comment..."
-                ></input>
-                <button
-                    type="submit"
-                    className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-lg transition-colors duration-200 ease-in-out py-2"
-                >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-              </svg>
-              
-                </button>
-            </form>
-
-
-            <div
-                className="bg-white mt-1 border-b-2 border-gray-200 rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-300 ease-in-out"
-            >
-                {
-                    comments.map(comment => (
-                        <Comment
-                            key={comment._id}
-                            comment={comment.text}
-                            userId={user._id}
-                            profilePic={user.profilePic}
-                            username={user.username}
-                            createdAt={comment.createdAt}
-                        />
-                    ))
-                }
+                  ))}
+                </ul>
+              </div>
             </div>
+
+            {/* Instructions */}
+            <div className="md:col-span-3">
+              <div className="card p-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Instructions</h2>
+                <div className="prose max-w-none text-gray-700 leading-relaxed">
+                  <p className="whitespace-pre-wrap">
+                    {showFullInstructions ? recipe.instructions : instructionsPreview}
+                  </p>
+                  {recipe.instructions.length > 150 && (
+                    <button
+                      className="text-orange-600 hover:text-orange-700 font-semibold mt-4"
+                      onClick={toggleInstructions}
+                    >
+                      {showFullInstructions ? 'Show Less' : 'Show More'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Comments Section */}
+          <div className="mt-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Comments</h2>
+            <div className="card p-6 max-w-2xl mx-auto">
+              <form onSubmit={handleCommentSubmit} className="flex gap-4 items-center mb-6">
+                <img
+                  src={currentUser?.profilePic || "https://via.placeholder.com/150"}
+                  alt="Your profile"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <input
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  className="input-field flex-grow"
+                  placeholder="Share your thoughts..."
+                />
+                <button type="submit" className="btn-primary">
+                  Post
+                </button>
+              </form>
+              <div className="space-y-6">
+                {comments.map((comment) => (
+                  <Comment
+                    key={comment._id}
+                    comment={comment.text}
+                    userId={user._id}
+                    profilePic={user.profilePic}
+                    username={user.username}
+                    createdAt={comment.createdAt}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
     );
 }
 

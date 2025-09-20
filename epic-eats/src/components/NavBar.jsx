@@ -1,13 +1,25 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import {
+  HomeIcon,
+  PlusCircleIcon,
+  BookmarkIcon,
+  UserCircleIcon,
+  ChatBubbleLeftEllipsisIcon,
+  MagnifyingGlassIcon,
+  Bars3Icon,
+  XMarkIcon,
+  ArrowRightOnRectangleIcon
+} from '@heroicons/react/24/outline';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showMobileNav, setShowMobileNav] = useState(false);
   const navRef = useRef();
   const router = useRouter();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -16,163 +28,130 @@ const Navbar = () => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [navRef]);
-  const handleResize = () => {
-    if (window.innerWidth > 768) {
-      setShowMobileNav(false);
-    } else {
-      setShowMobileNav(true);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const search = e.target.elements.search.value;
+    if (search) {
+      router.push(`/search?q=${search}`);
+      e.target.elements.search.value = '';
     }
   };
 
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const search = e.target[0].value;
-    router.push(`/search?q=${search}`);
-  }
-
-  function NavItems() {
-    if (!showMobileNav) {
-      return (
-        <ul className="flex space-x-4">
-          <li>
-            <Link href="/feed" className="text-base font-medium text-gray-500 hover:text-gray-900">
-              Home
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/create" className="text-base font-medium text-gray-500 hover:text-gray-900">
-              Create Recipe
-            </Link>
-          </li>
-          <li>
-            <Link href="/saved" className="text-base font-medium text-gray-500 hover:text-gray-900">
-              Saved Recipes
-            </Link>
-          </li>
-          <li className="relative">
-            <form
-              onSubmit={handleSubmit}
-              action="" method="get">
-              <input
-                className="pl-3 pr-10 py-1 text-gray-700 leading-tight focus:outline-none rounded-md"
-                type="text"
-                placeholder="Search..."
-                style={{ maxWidth: '160px' }} // Adjust width as needed
-              />
-              <button
-                className="absolute right-0 top-0 mt-1 mr-1"
-                type="submit"
-              >
-                <svg
-                  className="w-4 h-4 text-gray-500"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M21 21l-4.35-4.35m2.65-5.65a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </form>
-          </li>
-          <li>
-            <Link href={`/profile/me`} className="text-base font-medium text-gray-500 hover:text-gray-900">
-              Profile
-            </Link>
-          </li>
-          <li>
-            <Link href="/chat" className="text-base font-medium gradient-text">
-              Ask AI
-            </Link>
-          </li>
-        </ul>
-      );
-    } else {
-      return (
-        <>
-
-
-          {/* Navigation Links - sliding effect */}
-
-        </>
-      )
-    }
-  }
+  const navLinks = [
+    { href: '/feed', text: 'Home', icon: HomeIcon },
+    { href: '/create', text: 'Create', icon: PlusCircleIcon },
+    { href: '/saved', text: 'Saved', icon: BookmarkIcon },
+    { href: '/profile/me', text: 'Profile', icon: UserCircleIcon },
+    { href: '/chat', text: 'Ask AI', icon: ChatBubbleLeftEllipsisIcon, isPrimary: true },
+  ];
 
   return (
-    <header className="bg-white shadow-md z-10 sticky top-0 w-full">
+    <header className="bg-white/95 backdrop-blur-sm shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-6 md:justify-start md:space-x-10">
-          <div className="flex justify-start lg:w-0 lg:flex-1">
-            <Link href="/">
-              <h1 className="text-lg font-bold text-gray-900">Epic Eats</h1>
+        <div className="flex justify-between items-center py-4">
+          {/* Logo */}
+          <div className="flex justify-start items-center">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">E</span>
+              </div>
+              <h1 className="text-2xl font-bold gradient-text font-poppins">Epic Eats</h1>
             </Link>
           </div>
-          <NavItems />
 
-          <div className="-mr-2 -my-2 ">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-base font-medium transition-colors ${
+                  link.isPrimary
+                    ? 'gradient-text hover:opacity-80'
+                    : 'text-gray-600 hover:text-orange-600'
+                }`}
+              >
+                {link.text}
+              </Link>
+            ))}
+            <form onSubmit={handleSubmit} className="relative">
+              <input
+                name="search"
+                className="input-field pl-4 pr-10 py-2 rounded-full text-sm w-48"
+                type="text"
+                placeholder="Search..."
+              />
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500">
+                <MagnifyingGlassIcon className="w-5 h-5" />
+              </button>
+            </form>
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
-              className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="p-2 rounded-md text-gray-500 hover:text-orange-600 hover:bg-gray-100"
             >
               <span className="sr-only">Open menu</span>
-              {/* Icon */}
-              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
+              {isOpen ? <XMarkIcon className="h-7 w-7" /> : <Bars3Icon className="h-7 w-7" />}
             </button>
           </div>
-          <nav
-            ref={navRef}
-            className={`${isOpen ? 'translate-x-0' : 'translate-x-full'} transform top-0 right-0 w-64 bg-white fixed h-full overflow-auto ease-in-out transition-all duration-300 z-30`}>
-            <ul className="flex flex-col space-y-6 p-6">
-              <li>
-                <Link href="/" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/feed" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                  Feed
-                </Link>
-              </li>
-              <li>
-                <Link href="/create" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                  Create Recipe
-                </Link>
-              </li>
-              <li>
-                <Link href="/search" className="text-base font-medium text-gray-500 hover:text-gray-900">
-                  Search
-                </Link>
-              </li>
-              <li>
-                <Link href={`/profile/me`} className="text-base font-medium text-gray-500 hover:text-gray-900">
-                  Profile
-                </Link>
-              </li>
-              <li>
-                <Link href={`/api/auth/signout`} className="text-base font-medium text-red-400 hover:text-red-500">
-                  Sign Out
-                </Link>
-              </li>
-            </ul>
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      <div
+        ref={navRef}
+        className={`md:hidden fixed top-0 right-0 w-72 h-full bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-40 ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        style={{ top: '72px' }} // Start below the header
+      >
+        <div className="p-6">
+          <form onSubmit={handleSubmit} className="relative mb-6">
+            <input
+              name="search"
+              className="input-field w-full pl-4 pr-10 py-2 rounded-full"
+              type="text"
+              placeholder="Search..."
+            />
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500">
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </button>
+          </form>
+          <nav className="flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                  link.isPrimary
+                    ? 'gradient-bg text-white shadow-lg'
+                    : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
+                }`}
+              >
+                <link.icon className="w-6 h-6" />
+                <span className="font-semibold">{link.text}</span>
+              </Link>
+            ))}
+            {session && (
+              <Link
+                href="/api/auth/signout"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-lg text-red-600 hover:bg-red-50"
+              >
+                <ArrowRightOnRectangleIcon className="w-6 h-6" />
+                <span className="font-semibold">Sign Out</span>
+              </Link>
+            )}
           </nav>
         </div>
       </div>

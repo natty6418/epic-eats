@@ -10,46 +10,43 @@ function EditProfileForm({ isLoading, formData, handleInputChange, handleSubmit,
         return <Loading />;
     }
     return (
-        <main className="bg-gray-50 p-8 flex justify-center items-start">
-            <div className="container p-8 h-[calc(100vh-9rem)] max-w-2xl">
-                <div class="relative w-32 h-32 mb-4 mx-auto">
-                    <img src={formData?.profilePic || "https://via.placeholder.com/150"} alt="Profile Photo" className="rounded-full w-full h-full object-cover" />
-                    <CldUploadWidget signatureEndpoint="/api/sign-image" options={{ sources: ['local', 'url', 'unsplash'] }}
-                        onSuccess={(response) => handleImageUpload(response)}
-                    >
-                        {({ open }) => (
-                            <button type="button" onClick={()=> open()}  className="absolute bottom-0 right-0 p-2 bg-blue-400 rounded-full shadow-lg">
-                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="w-6 h-6">
-                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
-                        </svg>
-                        </button>
-                        )}
-                    </CldUploadWidget>
+        <div className="px-4 py-10 flex justify-center items-start">
+            <div className="w-full max-w-2xl">
+                <div className="card p-8">
+                    <div className="relative w-32 h-32 mb-6 mx-auto">
+                        <img src={formData?.profilePic || "https://via.placeholder.com/150"} alt="Profile Photo" className="rounded-full w-full h-full object-cover" />
+                        <CldUploadWidget signatureEndpoint="/api/sign-image" options={{ sources: ['local', 'url', 'unsplash'] }}
+                            onSuccess={(response) => handleImageUpload(response)}
+                        >
+                            {({ open }) => (
+                                <button type="button" onClick={()=> open()} className="absolute bottom-0 right-0 btn-secondary px-3 py-2 rounded-full">
+                                    Upload
+                                </button>
+                            )}
+                        </CldUploadWidget>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                            <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                            <input type="text" id="username" name="username" value={formData.username} onChange={handleInputChange} required minLength="3" maxLength="255" className="input-field" />
+                        </div>
+                        <div>
+                            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                            <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="input-field" />
+                        </div>
+                        <div>
+                            <label htmlFor="bio" className="block text-gray-700 text-sm font-medium mb-2">Bio</label>
+                            <textarea id="bio" name="bio" value={formData.bio} onChange={handleInputChange} className="input-field" rows="4"></textarea>
+                        </div>
+
+                        <div className="pt-2">
+                            <button type="submit" className="btn-primary w-full">Save Changes</button>
+                        </div>
+                    </form>
                 </div>
-
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-                        <input type="text" id="username" name="username" value={formData.username} onChange={handleInputChange} required minLength="3" maxLength="255" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-                        <input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="bio" className="block text-gray-700 text-sm font-bold mb-2">Bio:</label>
-                        <textarea id="bio" name="bio" value={formData.bio} onChange={handleInputChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-                    </div>
-                    
-
-                    <div className="mt-4">
-                        <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
             </div>
-        </main>
+        </div>
     )
 }
 export default function EditProfile() {
