@@ -39,7 +39,13 @@ export default function ChatPage() {
                 const res = await fetch('/api/chat/history');
                 if (res.ok){
                     const list = await res.json();
-                    setHistory(list);
+                    console.log(list);
+                    const normalized = Array.isArray(list)
+                        ? list
+                        : (Array.isArray(list?.items) ? list.items : []);
+                    setHistory(normalized);
+                } else {
+                    setHistory([]);
                 }
             } catch(e){
                 console.error('Failed to load chat history:', e);
@@ -64,7 +70,9 @@ export default function ChatPage() {
                     const saved = await res.json();
                     if (!activeChatId) {
                         setActiveChatId(saved.id);
-                        setHistory(prev => [{ id: saved.id, createdAt: saved.createdAt, preview: messages[0]?.text || '' }, ...prev]);
+                        setHistory(prev => [{ id: saved.id, createdAt: saved.createdAt, title: saved.title || '', preview: messages[0]?.text || '' }, ...prev]);
+                    } else if (saved.title) {
+                        setHistory(prev => prev.map(h => h.id === activeChatId ? { ...h, title: saved.title } : h));
                     }
                     setLastSavedCount(messages.length);
                 }
@@ -147,7 +155,7 @@ export default function ChatPage() {
                             </button>
                         </div>
                         <div className="space-y-2">
-                            {history.map(item => (
+                            {(Array.isArray(history) ? history : []).map(item => (
                                 <div key={item.id} className={`group flex items-start gap-2 p-2 rounded-lg border ${activeChatId===item.id? 'border-orange-400 bg-orange-50':'border-gray-200 hover:bg-gray-50'}`}>
                                     <button
                                         onClick={async () => {
@@ -165,7 +173,7 @@ export default function ChatPage() {
                                         }}
                                         className="flex-1 text-left"
                                     >
-                                        <div className="text-sm text-gray-700 line-clamp-2">{item.preview || 'New chat'}</div>
+                                        <div className="text-sm text-gray-700 line-clamp-2">{item.title || item.preview || 'New chat'}</div>
                                         <div className="text-xs text-gray-400 mt-1">{new Date(item.createdAt).toLocaleString()}</div>
                                     </button>
                                     <button

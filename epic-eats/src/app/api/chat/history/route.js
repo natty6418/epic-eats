@@ -21,12 +21,13 @@ export async function GET(request){
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
-            .select({ _id: 1, createdAt: 1, data: { $slice: 1 } }),
+            .select({ _id: 1, createdAt: 1, title: 1, data: { $slice: 1 } }),
         Chat.countDocuments({ userId: session.user.id })
     ]);
     const items = chats.map(c => ({
         id: c._id.toString(),
         createdAt: c.createdAt,
+        title: c.title && c.title.trim().length ? c.title : (c.data && c.data.length > 0 ? c.data[0].text : ""),
         preview: c.data && c.data.length > 0 ? c.data[0].text : "",
     }));
     return new Response(JSON.stringify({ items, total, page, limit }), {
