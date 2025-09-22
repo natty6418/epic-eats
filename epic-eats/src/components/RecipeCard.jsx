@@ -20,8 +20,8 @@ export default function RecipeCard({ recipe, currentUser, saved, setCurrentUser 
 	const [isSaved, setIsSaved] = useState(saved);
 	const [user, setUser] = useState(recipe.userId);
 	const [showFullDescription, setShowFullDescription] = useState(false);
-	const [isLiked, setIsLiked] = useState(recipe.likes?.includes(currentUser?._id));
-	const [likesCount, setLikesCount] = useState(recipe.likes?.length || 0);
+	const [isLiked, setIsLiked] = useState(Array.isArray(recipe.likes) ? recipe.likes.includes(currentUser?._id) : false);
+	const [likesCount, setLikesCount] = useState(typeof recipe.likesCount === 'number' ? recipe.likesCount : (recipe.likes?.length || 0));
 	const [isFollowing, setIsFollowing] = useState(currentUser?.following?.includes(user._id) || false);
 	const [isLoading, setIsLoading] = useState(false);
 	const searchParams = useSearchParams();
@@ -171,8 +171,15 @@ export default function RecipeCard({ recipe, currentUser, saved, setCurrentUser 
 			if (data.error) {
 				console.error('Error toggling like:', data.error);
 			} else {
-				setIsLiked(!isLiked);
-				setLikesCount(data.likes.length);
+				setIsLiked(prev => {
+					const next = !prev;
+					setLikesCount(prevCount => {
+						if (typeof data.likesCount === 'number') return data.likesCount;
+						if (Array.isArray(data.likes)) return data.likes.length;
+						return Math.max(0, prevCount + (next ? 1 : -1));
+					});
+					return next;
+				});
 			}
 		} catch (error) {
 			console.error('Network error:', error);

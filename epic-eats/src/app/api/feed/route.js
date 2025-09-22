@@ -18,26 +18,28 @@ export async function GET(request) {
     let total;
     
     if (filter === 'trending') {
-        // For trending, we need to sort by the length of the likes array
-        // MongoDB doesn't support sorting by array length directly, so we'll fetch all and sort in memory
-        const all = await Recipe.find().populate('userId').lean();
-        all.sort((a, b) => {
-            const aLikes = a.likes ? a.likes.length : 0;
-            const bLikes = b.likes ? b.likes.length : 0;
-            if (aLikes !== bLikes) {
-                return bLikes - aLikes; // Sort by likes descending
-            }
-            return new Date(b.createdAt) - new Date(a.createdAt); // Then by date descending
-        });
-        total = all.length;
-        items = all.slice(skip, skip + limit);
+        const [found, count] = await Promise.all([
+            Recipe.find({}, 'title image description createdAt userId likes likesCount')
+                .sort({ likesCount: -1, createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate('userId')
+                .lean(),
+            Recipe.countDocuments()
+        ]);
+        items = found;
+        total = count;
     } else {
         // For recent and all, use simple sorting
         const [found, count] = await Promise.all([
             Recipe.find().populate('userId').sort(sortCriteria).skip(skip).limit(limit).lean(),
             Recipe.countDocuments()
         ]);
-        items = found;
+        // Ensure likesCount is consistent if missing or stale
+        items = found.map(doc => ({
+            ...doc,
+            likesCount: typeof doc.likesCount === 'number' ? doc.likesCount : (Array.isArray(doc.likes) ? doc.likes.length : 0),
+        }));
         total = count;
     }
     return new Response(JSON.stringify({ items, total, page, limit }), {

@@ -45,8 +45,11 @@ export default function Feed() {
 
         if (cancelled) return;
 
-        const recipesData = await recipesRes.json();
-        const userData = await userRes.json();
+        const recipesIsJson = recipesRes.headers.get('content-type')?.includes('application/json');
+        const userIsJson = userRes.headers.get('content-type')?.includes('application/json');
+
+        const recipesData = recipesRes.ok && recipesIsJson ? await recipesRes.json() : { items: [] };
+        const userData = userRes.ok && userIsJson ? await userRes.json() : null;
 
         const items = Array.isArray(recipesData) ? recipesData : (recipesData?.items || []);
         setRecipes(items);
@@ -78,7 +81,8 @@ export default function Feed() {
         
         if (cancelled) return;
 
-        const recipesData = await recipesRes.json();
+        const isJson = recipesRes.headers.get('content-type')?.includes('application/json');
+        const recipesData = recipesRes.ok && isJson ? await recipesRes.json() : { items: [] };
         const items = Array.isArray(recipesData) ? recipesData : (recipesData?.items || []);
         setRecipes(items);
         setFilteredRecipes(items);

@@ -24,8 +24,12 @@ const recipeSchema = new Schema({
       }],
       createdAt: {type: Date, required: true},
       image: {type: String},
-      likes: {type: [{ type: Schema.Types.ObjectId, ref: 'User' }], default: []}
+      likes: {type: [{ type: Schema.Types.ObjectId, ref: 'User' }], default: []},
+      likesCount: { type: Number, default: 0 }
 });
+
+// Index to accelerate trending sorting
+recipeSchema.index({ likesCount: -1, createdAt: -1 });
 
 function validateRecipe(recipe){
     const schema = joi.object({

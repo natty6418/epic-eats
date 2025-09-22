@@ -1,5 +1,6 @@
 import connectDB from "@/db.mjs";
 import { Recipe } from "../../../../../../Model/Recipe.mjs";
+import mongoose from "mongoose";
 import { options } from "../../../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 
@@ -51,13 +52,26 @@ export async function POST(request, { params }) {
             });
         }
 
-        // Remove user from likes array
-        recipe.likes = recipe.likes.filter(likeId => likeId.toString() !== userId);
-        await recipe.save();
+        // Remove user and set likesCount = likes.length atomically (pipeline update)
+        const updated = await Recipe.findOneAndUpdate(
+            { _id: id },
+            [
+                { $set: { likes: {
+                    $filter: {
+                        input: "$likes",
+                        as: "lid",
+                        cond: { $ne: [ "$$lid", new mongoose.Types.ObjectId(userId) ] }
+                    }
+                } } },
+                { $set: { likesCount: { $size: "$likes" } } }
+            ],
+            { new: true, returnDocument: 'after', projection: { likes: 1, likesCount: 1 } }
+        );
 
         return new Response(JSON.stringify({ 
             message: 'Recipe unliked successfully',
-            likes: recipe.likes 
+            likes: updated.likes,
+            likesCount: updated.likesCount
         }), {
             status: 200,
             headers: {

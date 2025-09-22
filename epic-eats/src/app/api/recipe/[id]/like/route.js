@@ -1,5 +1,6 @@
 import connectDB from "@/db.mjs";
 import { Recipe } from "../../../../../../Model/Recipe.mjs";
+import mongoose from "mongoose";
 import { options } from "../../../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 
@@ -51,13 +52,20 @@ export async function POST(request, { params }) {
             });
         }
 
-        // Add user to likes array
-        recipe.likes.push(userId);
-        await recipe.save();
+        // Add user to likes array and set likesCount = likes.length atomically (pipeline update)
+        const updated = await Recipe.findOneAndUpdate(
+            { _id: id },
+            [
+                { $set: { likes: { $setUnion: ["$likes", [ new mongoose.Types.ObjectId(userId) ]] } } },
+                { $set: { likesCount: { $size: "$likes" } } }
+            ],
+            { new: true, returnDocument: 'after', projection: { likes: 1, likesCount: 1 } }
+        );
 
         return new Response(JSON.stringify({ 
             message: 'Recipe liked successfully',
-            likes: recipe.likes 
+            likes: updated.likes,
+            likesCount: updated.likesCount
         }), {
             status: 200,
             headers: {
