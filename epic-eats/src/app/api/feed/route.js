@@ -1,5 +1,6 @@
 import connectDB from "@/db.mjs";
 import { Recipe } from "../../../../Model/Recipe.mjs";
+import { User } from "../../../../Model/User.mjs";
 
 export const dynamic = 'force-dynamic';
 export async function GET(request) {
@@ -19,7 +20,7 @@ export async function GET(request) {
     if (filter === 'trending') {
         // For trending, we need to sort by the length of the likes array
         // MongoDB doesn't support sorting by array length directly, so we'll fetch all and sort in memory
-        const all = await Recipe.find().populate('userId');
+        const all = await Recipe.find().populate('userId').lean();
         all.sort((a, b) => {
             const aLikes = a.likes ? a.likes.length : 0;
             const bLikes = b.likes ? b.likes.length : 0;
@@ -33,7 +34,7 @@ export async function GET(request) {
     } else {
         // For recent and all, use simple sorting
         const [found, count] = await Promise.all([
-            Recipe.find().populate('userId').sort(sortCriteria).skip(skip).limit(limit),
+            Recipe.find().populate('userId').sort(sortCriteria).skip(skip).limit(limit).lean(),
             Recipe.countDocuments()
         ]);
         items = found;

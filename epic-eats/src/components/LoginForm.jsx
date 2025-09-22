@@ -34,19 +34,14 @@ export default function LoginForm() {
     const email = e.target.email.value;
     const password = e.target.password.value;
     
-    const result = await signIn('credentials', {
+    await signIn('credentials', {
       email,
       password,
-      redirect: false
+      callbackUrl: '/feed',
+      redirect: true,
     });
     
     setIsLoading(false);
-    
-    if (result?.error) {
-      setError("Invalid email or password");
-    } else {
-      router.push('/feed');
-    }
   };
 
   return (
