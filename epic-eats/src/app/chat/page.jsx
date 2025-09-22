@@ -13,6 +13,10 @@ import {
 export default function ChatPage() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [messages, setMessages] = useState([]);
+    const [lastSavedCount, setLastSavedCount] = useState(0);
+    const [history, setHistory] = useState([]);
+    const [activeChatId, setActiveChatId] = useState(null);
 
     useEffect(() => {
         async function fetchUser() {
@@ -28,6 +32,48 @@ export default function ChatPage() {
         }
         fetchUser();
     }, []);
+
+    useEffect(() => {
+        async function fetchHistory(){
+            try{
+                const res = await fetch('/api/chat/history');
+                if (res.ok){
+                    const list = await res.json();
+                    setHistory(list);
+                }
+            } catch(e){
+                console.error('Failed to load chat history:', e);
+            }
+        }
+        fetchHistory();
+    }, [user]);
+
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            if (!user) return;
+            const hasUserMessage = messages.some(m => m.sender === 'user');
+            const hasNew = hasUserMessage && messages.length > 0 && messages.length !== lastSavedCount;
+            if (!hasNew) return;
+            try {
+                const res = await fetch('/api/chat/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: activeChatId, data: messages }),
+                });
+                if (res.ok) {
+                    const saved = await res.json();
+                    if (!activeChatId) {
+                        setActiveChatId(saved.id);
+                        setHistory(prev => [{ id: saved.id, createdAt: saved.createdAt, preview: messages[0]?.text || '' }, ...prev]);
+                    }
+                    setLastSavedCount(messages.length);
+                }
+            } catch (e) {
+                console.error('Autosave failed:', e);
+            }
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [messages, lastSavedCount, user]);
 
     if (isLoading) {
         return (
@@ -80,9 +126,85 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                {/* Chat Interface */}
-                <div className="max-w-4xl mx-auto">
-                    <ChatBox profilePic={user?.profilePic} />
+                {/* Chat Interface with History Sidebar */}
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="md:col-span-1 card p-4 h-[600px] overflow-auto">
+                        <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold text-gray-800">History</h4>
+                            <button
+                                onClick={() => {
+                                    setActiveChatId(null);
+                                    const welcome = [{
+                                        text: "Hello! I'm your AI cooking assistant. I'm here to help you with recipes, cooking tips, ingredient substitutions, and any culinary questions you might have. What would you like to know?",
+                                        sender: 'assistant'
+                                    }];
+                                    setMessages(welcome);
+                                    setLastSavedCount(0);
+                                }}
+                                className="px-3 py-1 text-sm rounded-md bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+                            >
+                                New Chat
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            {history.map(item => (
+                                <div key={item.id} className={`group flex items-start gap-2 p-2 rounded-lg border ${activeChatId===item.id? 'border-orange-400 bg-orange-50':'border-gray-200 hover:bg-gray-50'}`}>
+                                    <button
+                                        onClick={async () => {
+                                            try{
+                                                const res = await fetch(`/api/chat/${item.id}`);
+                                                if (res.ok){
+                                                    const chat = await res.json();
+                                                    setActiveChatId(item.id);
+                                                    setMessages(chat.data || []);
+                                                    setLastSavedCount((chat.data || []).length);
+                                                }
+                                            }catch(e){
+                                                console.error('Failed to load chat:', e);
+                                            }
+                                        }}
+                                        className="flex-1 text-left"
+                                    >
+                                        <div className="text-sm text-gray-700 line-clamp-2">{item.preview || 'New chat'}</div>
+                                        <div className="text-xs text-gray-400 mt-1">{new Date(item.createdAt).toLocaleString()}</div>
+                                    </button>
+                                    <button
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
+                                            try{
+                                                const res = await fetch(`/api/chat/${item.id}`, { method: 'DELETE' });
+                                                if (res.status === 204){
+                                                    setHistory(prev => prev.filter(h => h.id !== item.id));
+                                                    if (activeChatId === item.id){
+                                                        setActiveChatId(null);
+                                                        const welcome = [{
+                                                            text: "Hello! I'm your AI cooking assistant. I'm here to help you with recipes, cooking tips, ingredient substitutions, and any culinary questions you might have. What would you like to know?",
+                                                            sender: 'assistant'
+                                                        }];
+                                                        setMessages(welcome);
+                                                        setLastSavedCount(0);
+                                                    }
+                                                }
+                                            }catch(e){
+                                                console.error('Failed to delete chat:', e);
+                                            }
+                                        }}
+                                        className="opacity-70 md:opacity-0 md:group-hover:opacity-100 text-xs text-red-600 hover:text-red-700 px-2 py-1"
+                                        title="Delete"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="md:col-span-3">
+                        <ChatBox 
+                            profilePic={user?.profilePic}
+                            onMessagesChange={setMessages}
+                            initialMessages={messages}
+                        />
+                    </div>
                 </div>
 
                 {/* Tips Section */}

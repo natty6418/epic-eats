@@ -2,27 +2,29 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import joi from 'joi';
 
+const messageSchema = new Schema({
+    sender: { type: String, required: true, enum: ['user', 'assistant'] },
+    text: { type: String, required: true },
+}, { _id: false });
+
 const chatSchema = new Schema({
-    userId: {
-        type: Schema.Types.ObjectId, 
-        ref:'User'},
-    
-    data: [
-        {type: new Schema({
-            sender: {type: String, required: true},
-            text: {type: String, required: true},
-        })}
-    ],
-    createdAt: {type: Date, required: true}
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    data: { type: [messageSchema], default: [] },
+    createdAt: { type: Date, required: true },
 });
 
-function validateComment(comment){
+function validateChat(chat){
     const schema = joi.object({
-        text: joi.string().required(),
-        recipeId: joi.string().required()
+        data: joi.array().items(
+            joi.object({
+                sender: joi.string().valid('user', 'assistant').required(),
+                text: joi.string().required(),
+            })
+        ).min(1).required(),
     });
-    return schema.validate(comment);
+    return schema.validate(chat);
 }
-const Comment = mongoose.models.Comment || mongoose.model('Comment', commentSchema);
 
-export { Comment, validateComment };
+const Chat = mongoose.models.Chat || mongoose.model('Chat', chatSchema);
+
+export { Chat, validateChat };

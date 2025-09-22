@@ -1,37 +1,66 @@
 "use client"
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from 'react-markdown';
-import { FaUserCircle, FaRobot } from 'react-icons/fa';  // Make sure to install react-icons
+import { 
+  PaperAirplaneIcon, 
+  ChatBubbleLeftEllipsisIcon,
+  UserIcon,
+  SparklesIcon
+} from '@heroicons/react/24/outline';
 
-export default function ChatBox({ profilePic }) {
+export default function ChatBox({ profilePic, onMessagesChange, initialMessages = null }) {
     const [userInput, setUserInput] = useState('');
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState(initialMessages ?? [
+        {
+            text: "Hello! I'm your AI cooking assistant. I'm here to help you with recipes, cooking tips, ingredient substitutions, and any culinary questions you might have. What would you like to know?",
+            sender: 'assistant'
+        }
+    ]);
+    useEffect(() => {
+        if (initialMessages) {
+            setMessages(initialMessages);
+        }
+    }, [initialMessages]);
     const [isTyping, setIsTyping] = useState(false);
 
     const handleSendMessage = async () => {
+        if (!userInput.trim()) return;
+
+        const currentInput = userInput.trim();
         // Display the user's input immediately
-        setMessages(messages => [...messages, { text: userInput, sender: 'user' }]);
+        setMessages(prev => [...prev, { text: currentInput, sender: 'user' }]);
         setUserInput('');
         setIsTyping(true);
 
         try {
-            const response = await fetch('api/chat', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    history: messages.map(msg => msg.text),  // Only send text to API
-                    message: userInput
+                    history: messages.map(msg => msg.text),
+                    message: currentInput
                 }),
             });
             const data = await response.json();
             // Add the API response to the messages
-            setMessages(messages => [...messages, { text: data.message, sender: 'assistant' }]);
+            setMessages(prev => [...prev, { text: data.message, sender: 'assistant' }]);
         } catch (e) {
             console.error('Error sending message:', e);
+            setMessages(prev => [...prev, { 
+                text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.", 
+                sender: 'assistant' 
+            }]);
         } finally {
             setIsTyping(false);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
         }
     };
 
@@ -41,68 +70,113 @@ export default function ChatBox({ profilePic }) {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [messages]); // This effect runs whenever messages change
+        if (typeof onMessagesChange === 'function') {
+            onMessagesChange(messages);
+        }
+    }, [messages, isTyping, onMessagesChange]);
 
     return (
-        <div className='card p-6 w-[50%] h-[75%] flex flex-col'>
-    <div className='text-xl font-semibold text-center mb-4 gradient-text font-poppins'>
-        Kitchen Conversations
-    </div>
-    <div ref={chatContainerRef} className='flex-grow overflow-auto flex flex-col gap-4 scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-gray-300 scrollbar-track-gray-100'>
-        {messages.map((message, index) => (
-            <>
-                {message.sender === 'user' ? (
-                    <div className="flex flex-row-reverse gap-3 items-center">
-                        <img
-                            src={profilePic || "https://via.placeholder.com/150"}
-                            alt="Profile Picture"
-                            className="w-10 h-10 object-cover rounded-full border-2 border-white shadow-lg"
-                        />
-                        <div key={index} className={`flex items-center gap-3 p-4 rounded-lg self-end gradient-bg text-white shadow-md`}>
-                            <div className='max-w-[75%] text-base leading-relaxed'>
-                                <ReactMarkdown>{message.text}</ReactMarkdown>
+        <div className="card p-6 shadow-xl h-[600px] flex flex-col">
+            {/* Chat Header */}
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
+                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <ChatBubbleLeftEllipsisIcon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                    <h3 className="text-lg font-semibold text-gray-800">AI Chef Assistant</h3>
+                    <p className="text-sm text-gray-500">Always here to help with your cooking</p>
+                </div>
+            </div>
+
+            {/* Messages Container */}
+            <div 
+                ref={chatContainerRef} 
+                className="flex-grow overflow-auto flex flex-col gap-4 mb-6 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+            >
+                {messages.map((message, index) => (
+                    <div key={index}>
+                        {message.sender === 'user' ? (
+                            <div className="flex flex-row-reverse gap-3 items-start">
+                                <img
+                                    src={profilePic || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"}
+                                    alt="Profile Picture"
+                                    className="w-8 h-8 object-cover rounded-full border-2 border-white shadow-sm flex-shrink-0"
+                                />
+                                <div className="max-w-[70%] bg-gradient-to-r from-orange-500 to-pink-500 text-white p-4 rounded-2xl rounded-tr-md shadow-lg">
+                                    <div className="text-sm leading-relaxed">
+                                        <ReactMarkdown>{message.text}</ReactMarkdown>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="flex flex-row gap-3 items-start">
+                                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <SparklesIcon className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="max-w-[70%] bg-white border border-gray-200 text-gray-800 p-4 rounded-2xl rounded-tl-md shadow-sm">
+                                    <div className="text-sm leading-relaxed">
+                                        <ReactMarkdown>{message.text}</ReactMarkdown>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div className="flex flex-row gap-3 items-center">
-                        <FaRobot className="text-3xl text-orange-500" />
-                        <div key={index} className={`max-w-[75%] flex items-center gap-3 p-4 rounded-lg self-start bg-white/90 border border-gray-200 text-gray-800 shadow`}>
-                            <div className='text-base leading-relaxed'>
-                                <ReactMarkdown>{message.text}</ReactMarkdown>
+                ))}
+
+                {isTyping && (
+                    <div className="flex flex-row gap-3 items-start">
+                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <SparklesIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="bg-white border border-gray-200 text-gray-800 p-4 rounded-2xl rounded-tl-md shadow-sm">
+                            <div className="flex items-center gap-2">
+                                <div className="flex space-x-1">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                </div>
+                                <span className="text-sm text-gray-500">AI is thinking...</span>
                             </div>
                         </div>
                     </div>
                 )}
-            </>
-        ))}
-
-        {isTyping && (
-            <div className='self-start bg-orange-50 text-orange-700 p-3 rounded-lg max-w-[40%] animate-pulse border border-orange-200'>
-                <FaRobot className="inline-block text-xl" /> Typing...
             </div>
-        )}
-    </div>
 
-    <form className='flex mt-4' onSubmit={(e) => e.preventDefault()}>
-        <input
-            className='input-field flex-grow rounded-r-none'
-            type='text'
-            value={userInput}
-            placeholder='Type a message...'
-            onChange={(e) => setUserInput(e.target.value)}
-        />
-        <button
-            className='btn-primary rounded-l-none'
-            onClick={handleSendMessage}
-            disabled={!userInput.trim() || isTyping}
-        >
-            Send
-        </button>
-    </form>
-</div>
-
-
-
-    )
+            {/* Input Form */}
+            <form 
+                className="flex gap-3" 
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendMessage();
+                }}
+            >
+                <div className="flex-1 relative">
+                    <input
+                        className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-lg focus:outline-none transition-all duration-200 resize-none"
+                        type="text"
+                        value={userInput}
+                        placeholder="Ask me anything about cooking..."
+                        onChange={(e) => setUserInput(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        disabled={isTyping}
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                        Press Enter to send
+                    </div>
+                </div>
+                <button
+                    type="submit"
+                    disabled={!userInput.trim() || isTyping}
+                    className="px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl disabled:shadow-none"
+                >
+                    {isTyping ? (
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                        <PaperAirplaneIcon className="w-5 h-5" />
+                    )}
+                    <span className="hidden sm:inline">Send</span>
+                </button>
+            </form>
+        </div>
+    );
 }
