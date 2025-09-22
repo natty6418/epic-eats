@@ -16,7 +16,27 @@ export async function GET(request,{params}){
             }
         });
     }
-    return new Response(JSON.stringify(recipe), {
+    // Normalize ingredients to array of strings for backward compatibility
+    const doc = recipe.toObject ? recipe.toObject() : JSON.parse(JSON.stringify(recipe));
+    if (Array.isArray(doc.ingredients)) {
+        doc.ingredients = doc.ingredients.map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object') {
+                if (typeof item.ingredient === 'string' || typeof item.quantity === 'string') {
+                    const left = item.ingredient || '';
+                    const right = item.quantity ? ` – ${item.quantity}` : '';
+                    return `${left}${right}`.trim();
+                }
+                // Handle mistakenly spread string objects with numeric keys
+                const keys = Object.keys(item).filter(k => /^\d+$/.test(k)).sort((a,b)=>Number(a)-Number(b));
+                if (keys.length) {
+                    return keys.map(k => item[k]).join('');
+                }
+            }
+            return '';
+        }).filter(Boolean);
+    }
+    return new Response(JSON.stringify(doc), {
         status: 200,
         headers: {
             'Content-Type': 'application/json'
@@ -27,7 +47,27 @@ export async function PUT(request, { params }) {
     await connectDB();
     const { id } = params;
     const data = await request.json();
-    const recipe = await Recipe.findByIdAndUpdate(id, data, { new: true });
+    const ingredients = Array.isArray(data.ingredients)
+        ? data.ingredients.map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object') {
+                if (typeof item.ingredient === 'string' || typeof item.quantity === 'string') {
+                    const left = item.ingredient || '';
+                    const right = item.quantity ? ` – ${item.quantity}` : '';
+                    return `${left}${right}`.trim();
+                }
+                const keys = Object.keys(item).filter(k => /^\d+$/.test(k)).sort((a,b)=>Number(a)-Number(b));
+                if (keys.length) {
+                    return keys.map(k => item[k]).join('');
+                }
+            }
+            return '';
+        }).filter(Boolean)
+        : String(data.ingredients || '')
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean);
+    const recipe = await Recipe.findByIdAndUpdate(id, { ...data, ingredients }, { new: true });
     if (!recipe) {
         return new Response(JSON.stringify({ error: 'Recipe not found' }), {
             status: 404,

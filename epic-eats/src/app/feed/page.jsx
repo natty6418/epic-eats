@@ -48,8 +48,9 @@ export default function Feed() {
         const recipesData = await recipesRes.json();
         const userData = await userRes.json();
 
-        setRecipes(recipesData || []);
-        setFilteredRecipes(recipesData || []);
+        const items = Array.isArray(recipesData) ? recipesData : (recipesData?.items || []);
+        setRecipes(items);
+        setFilteredRecipes(items);
         setUser(userData);
       } catch (error) {
         console.error("Failed to load feed", error);
@@ -78,8 +79,9 @@ export default function Feed() {
         if (cancelled) return;
 
         const recipesData = await recipesRes.json();
-        setRecipes(recipesData || []);
-        setFilteredRecipes(recipesData || []);
+        const items = Array.isArray(recipesData) ? recipesData : (recipesData?.items || []);
+        setRecipes(items);
+        setFilteredRecipes(items);
       } catch (error) {
         console.error("Failed to load filtered recipes", error);
       } finally {

@@ -29,8 +29,9 @@ function SearchBar({ recipes, setRecipes, searchQuery, setSearchQuery }) {
         setIsSearching(true);
         try {
             const data = await fetch(`/api/user/savedRecipes?query=${searchQuery}`);
-            const recipes = await data.json();
-            setRecipes(recipes);
+            const json = await data.json();
+            const items = Array.isArray(json) ? json : (json?.items || []);
+            setRecipes(items);
         } catch (error) {
             console.error('Search failed:', error);
         } finally {
@@ -87,8 +88,9 @@ export default function SavedRecipes() {
         async function fetchSavedRecipes() {
             try {
                 const res = await fetch("/api/user/savedRecipes");
-                const data = await res.json();
-                setRecipes(data);
+                const json = await res.json();
+                const items = Array.isArray(json) ? json : (json?.items || []);
+                setRecipes(items);
             } catch (error) {
                 console.error('Failed to fetch saved recipes:', error);
             } finally {

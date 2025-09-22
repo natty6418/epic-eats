@@ -7,7 +7,7 @@ const recipeSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref:'User'},
       title: {type: String, required: true},
-      ingredients: [{ingredient: String, quantity: String}],
+      ingredients: { type: [String], default: [] },
       description: {type: String, required: true},
       instructions: {type: String, required: true},
       comments: [{
@@ -30,7 +30,7 @@ const recipeSchema = new Schema({
 function validateRecipe(recipe){
     const schema = joi.object({
         title: joi.string().required(),
-        ingredients: joi.array().required(),
+        ingredients: joi.array().items(joi.string()).required(),
         instructions: joi.string().required(),
         description: joi.string().required().max(255),
         image: joi.string()

@@ -16,8 +16,15 @@ export async function GET(request){
     }
     const userId = session.user.id;
     await connectDB();
-    const recipes = await Recipe.find({ userId: userId});
-    return new Response(JSON.stringify([...recipes]), {
+    const searchParams = request.nextUrl.searchParams;
+    const page = Math.max(1, Number(searchParams.get('page') || 1));
+    const limit = Math.max(1, Number(searchParams.get('limit') || 20));
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+        Recipe.find({ userId: userId }).skip(skip).limit(limit),
+        Recipe.countDocuments({ userId: userId })
+    ]);
+    return new Response(JSON.stringify({ items, total, page, limit }), {
         status: 200,
         headers: {
             'Content-Type': 'application/json'

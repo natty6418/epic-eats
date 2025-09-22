@@ -10,7 +10,7 @@ import Dialog from '@mui/material/Dialog';
 function EditRecipeForm({ params }) {
     const router = useRouter();
     const [title, setTitle] = useState('');
-    const [ingredients, setIngredients] = useState([{ ingredient: '', quantity: '' }]);
+    const [ingredients, setIngredients] = useState('');
     const [instructions, setInstructions] = useState('');
     const [description, setDescription] = useState('');
     const [image, setImage] = useState("https://via.placeholder.com/800");
@@ -29,7 +29,7 @@ function EditRecipeForm({ params }) {
                 return;
             }
             setTitle(data.title);
-            setIngredients(data.ingredients);
+            setIngredients(Array.isArray(data.ingredients) ? data.ingredients.join(', ') : '');
             setInstructions(data.instructions);
             setDescription(data.description);
             setImage(data.image);
@@ -61,14 +61,8 @@ function EditRecipeForm({ params }) {
             console.log(data.error);
         }
     };
-    const handleIngredientChange = (index, field, value) => {
-        const newIngredients = [...ingredients];
-        newIngredients[index][field] = value;
-        setIngredients(newIngredients);
-    };
-
-    const addIngredient = () => {
-        setIngredients([...ingredients, { ingredient: '', quantity: '' }]);
+    const handleIngredientsInput = (value) => {
+        setIngredients(value);
     };
 
     const handleSubmit = async (event) => {
@@ -113,41 +107,15 @@ function EditRecipeForm({ params }) {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="block text-sm font-medium text-gray-700">Ingredients</label>
-                        {
-                            ingredients.map((ingredient, index) => (
-                                <div key={index} className="flex flex-wrap space-x-3 mb-4">
-                                    <input
-                                        type="text"
-                                        name="ingredient[]"
-                                        placeholder="Ingredient"
-                                        required
-                                        className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:flex-auto sm:w-auto"
-                                        value={ingredient.ingredient}
-                                        onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
-                                    />
-                                    <input
-                                        type="text"
-                                        name="quantity[]"
-                                        placeholder="Quantity"
-                                        required
-                                        className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:flex-auto sm:w-auto"
-                                        value={ingredient.quantity}
-                                        onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
-                                    />
-                                    <button
-                                        type="button"
-                                        className={`text-white font-bold py-1 px-2 rounded focus:outline-none ${index === ingredients.length - 1 ? 'bg-blue-500 hover:bg-blue-700' : 'bg-red-500 hover:bg-red-700'}`}
-                                        onClick={index === ingredients.length - 1 ? addIngredient : () => setIngredients(ingredients.filter((_, i) => i !== index))}
-                                        style={{ minWidth: '2rem' }}  // Ensure button has a minimum width
-                                    >
-                                        {index === ingredients.length - 1 ? '+' : '-'}
-                                    </button>
-                                </div>
-
-                            ))
-                        }
-
+                        <label className="block text-sm font-medium text-gray-700">Ingredients (comma-separated)</label>
+                        <input
+                            type="text"
+                            placeholder="e.g., Flour, Eggs, Milk, Sugar"
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            value={ingredients}
+                            onChange={(e) => handleIngredientsInput(e.target.value)}
+                        />
                     </div>
                     <div className="form-group">
                         <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>

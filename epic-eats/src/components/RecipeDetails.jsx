@@ -11,6 +11,7 @@ function RecipeDetail({ recipeId }) {
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
     const [showFullInstructions, setShowFullInstructions] = useState(false);
+    const [showAllIngredients, setShowAllIngredients] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [comments, setComments] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
@@ -122,6 +123,21 @@ function RecipeDetail({ recipeId }) {
         ? recipe.instructions.substring(0, 150) + '...'
         : recipe.instructions;
 
+    // Build normalized ingredient labels for display
+    const ingredientLabels = Array.isArray(recipe.ingredients)
+      ? recipe.ingredients.map((item) => {
+          if (typeof item === 'string') return item;
+          if (item && typeof item === 'object') {
+            const left = item.ingredient || '';
+            const right = item.quantity ? ` – ${item.quantity}` : '';
+            return `${left}${right}`.trim();
+          }
+          return '';
+        }).filter(Boolean)
+      : [];
+
+    const visibleIngredients = showAllIngredients ? ingredientLabels : ingredientLabels.slice(0, 8);
+
     return (
         <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -202,13 +218,20 @@ function RecipeDetail({ recipeId }) {
               <div className="card p-6 sticky top-24">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
                 <ul className="space-y-3">
-                  {recipe.ingredients.map((item, index) => (
+                  {visibleIngredients.map((label, index) => (
                     <li key={index} className="flex justify-between items-center pb-2 border-b border-gray-100">
-                      <span className="font-medium text-gray-800">{item.ingredient}</span>
-                      <span className="text-gray-600">{item.quantity}</span>
+                      <span className="font-medium text-gray-800">{label}</span>
                     </li>
                   ))}
                 </ul>
+                {ingredientLabels.length > 8 && (
+                  <button
+                    className="mt-4 text-orange-600 hover:text-orange-700 font-semibold"
+                    onClick={() => setShowAllIngredients(!showAllIngredients)}
+                  >
+                    {showAllIngredients ? 'Show Less' : `Show More (${ingredientLabels.length - 8} more)`}
+                  </button>
+                )}
               </div>
             </div>
 

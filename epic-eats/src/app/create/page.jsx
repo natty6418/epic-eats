@@ -4,20 +4,20 @@ import { useRouter } from 'next/navigation';
 import { CldUploadWidget } from 'next-cloudinary';
 import { 
   SparklesIcon, 
-  PlusIcon, 
   PhotoIcon,
   DocumentTextIcon,
   ListBulletIcon,
   ClockIcon,
   FireIcon,
   CheckCircleIcon,
+  PlusIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 
 function CreateRecipeForm() {
   const router = useRouter();
   const [title, setTitle] = useState('');
-  const [ingredients, setIngredients] = useState([{ ingredient: '', quantity: '' }]);
+  const [ingredients, setIngredients] = useState(['']);
   const [instructions, setInstructions] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState("");
@@ -26,18 +26,18 @@ function CreateRecipeForm() {
   const [cookTime, setCookTime] = useState('');
   const [tags, setTags] = useState('');
 
-  const handleIngredientChange = (index, field, value) => {
-    const newIngredients = [...ingredients];
-    newIngredients[index][field] = value;
-    setIngredients(newIngredients);
+  const handleIngredientChange = (index, value) => {
+    const next = [...ingredients];
+    next[index] = value;
+    setIngredients(next);
   };
 
   const addIngredient = () => {
-    setIngredients([...ingredients, { ingredient: '', quantity: '' }]);
+    setIngredients((prev) => [...prev, '']);
   };
 
   const removeIngredient = (index) => {
-    setIngredients(ingredients.filter((_, i) => i !== index));
+    setIngredients((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (event) => {
@@ -51,7 +51,8 @@ function CreateRecipeForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           title, 
-          ingredients, 
+          // Send as comma-separated string per requirement
+          ingredients: ingredients.map(i => i.trim()).filter(Boolean).join(', '), 
           instructions, 
           image, 
           description,
@@ -147,45 +148,23 @@ function CreateRecipeForm() {
                     Ingredients
                   </label>
                   <div className="space-y-3">
-                    {ingredients.map((ingredient, index) => (
+                    {ingredients.map((ing, index) => (
                       <div key={index} className="flex gap-3 items-center p-3 bg-gray-50 rounded-xl">
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            name="ingredient[]"
-                            placeholder="Ingredient name"
-                            required
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-md focus:outline-none transition-all duration-200"
-                            value={ingredient.ingredient}
-                            onChange={(e) => handleIngredientChange(index, 'ingredient', e.target.value)}
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            name="quantity[]"
-                            placeholder="Amount"
-                            required
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-md focus:outline-none transition-all duration-200"
-                            value={ingredient.quantity}
-                            onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
-                          />
-                        </div>
+                        <input
+                          type="text"
+                          placeholder="e.g., 2 cups flour"
+                          required
+                          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-0 focus:ring-offset-0 focus:border-orange-400 focus:shadow-md focus:outline-none transition-all duration-200"
+                          value={ing}
+                          onChange={(e) => handleIngredientChange(index, e.target.value)}
+                        />
                         <button
                           type="button"
                           onClick={index === ingredients.length - 1 ? addIngredient : () => removeIngredient(index)}
-                          className={`p-2 rounded-lg text-white transition-all duration-200 ${
-                            index === ingredients.length - 1 
-                              ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600' 
-                              : 'bg-red-500 hover:bg-red-600'
-                          }`}
+                          className={`p-2 rounded-lg text-white transition-all duration-200 ${index === ingredients.length - 1 ? 'bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600' : 'bg-red-500 hover:bg-red-600'}`}
                           aria-label={index === ingredients.length - 1 ? 'Add ingredient' : 'Remove ingredient'}
                         >
-                          {index === ingredients.length - 1 ? (
-                            <PlusIcon className="w-5 h-5" />
-                          ) : (
-                            <XMarkIcon className="w-5 h-5" />
-                          )}
+                          {index === ingredients.length - 1 ? <PlusIcon className="w-5 h-5" /> : <XMarkIcon className="w-5 h-5" />}
                         </button>
                       </div>
                     ))}
@@ -376,7 +355,7 @@ function CreateRecipeForm() {
                   </div>
                   <div className="text-sm">
                     <span className="font-medium text-gray-600">Ingredients:</span>
-                    <p className="text-gray-800">{ingredients.length} item{ingredients.length !== 1 ? 's' : ''}</p>
+                    <p className="text-gray-800">{ingredients.filter(i => i.trim()).length} item{ingredients.filter(i => i.trim()).length !== 1 ? 's' : ''}</p>
                   </div>
                   <div className="text-sm">
                     <span className="font-medium text-gray-600">Cook Time:</span>

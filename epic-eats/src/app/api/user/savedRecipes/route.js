@@ -24,21 +24,22 @@ export async function GET(request) {
         model: 'User'
       }
     });
-    const recipes = user.savedRecipes;
-    const search = request.nextUrl.searchParams.get('query')?.trim();
-    if(search){
-        const filteredRecipes = recipes.filter(recipe => recipe.title.toLowerCase().includes(search.toLowerCase()));
-        return new Response(JSON.stringify(filteredRecipes), {
-            status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    }
-    return new Response(JSON.stringify(recipes), {
+    const recipes = user.savedRecipes || [];
+    const searchParams = request.nextUrl.searchParams;
+    const search = (searchParams.get('query') || '').trim();
+    const page = Math.max(1, Number(searchParams.get('page') || 1));
+    const limit = Math.max(1, Number(searchParams.get('limit') || 20));
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const filtered = search
+      ? recipes.filter(r => (r.title || '').toLowerCase().includes(search.toLowerCase()))
+      : recipes;
+    const total = filtered.length;
+    const items = filtered.slice(start, end);
+    return new Response(JSON.stringify({ items, total, page, limit }), {
         status: 200,
         headers: {
             'Content-Type': 'application/json'
         }
-    });    
+    });
 }

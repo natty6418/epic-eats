@@ -27,8 +27,8 @@ export async function POST(request){
         });
     }
     const comment = new Comment({
-        user: session.user.id,
-        recipe: recipeId,
+        userId: session.user.id,
+        recipeId: recipeId,
         text,
         createdAt: new Date(),
     });
@@ -41,5 +41,38 @@ export async function POST(request){
         headers: {
             'Content-Type': 'application/json'
         }
+    });
+}
+
+export const dynamic = 'force-dynamic';
+export async function GET(request){
+    await connectDB();
+    const session = await getServerSession(options);
+    if (!session) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+            status: 401,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
+    const searchParams = request.nextUrl.searchParams;
+    const recipeId = searchParams.get('recipeId');
+    if (!recipeId) {
+        return new Response(JSON.stringify({ error: 'recipeId is required' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+    const page = Math.max(1, Number(searchParams.get('page') || 1));
+    const limit = Math.max(1, Number(searchParams.get('limit') || 20));
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+        Comment.find({ recipeId }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+        Comment.countDocuments({ recipeId })
+    ]);
+    return new Response(JSON.stringify({ items, total, page, limit }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
     });
 }
