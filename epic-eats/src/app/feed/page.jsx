@@ -1,6 +1,8 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import RecipeCard from "@/components/RecipeCard";
 import Loading from "@/components/Loading";
@@ -21,12 +23,24 @@ const FILTERS = [
 
 export default function Feed() {
   const { update } = useSession();
+  const router = useRouter();
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(12);
+  // Autocomplete state
+  const [suggestions, setSuggestions] = useState([]);
+  const [suggesting, setSuggesting] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debounceRef = useRef(null);
+  const abortRef = useRef(null);
+  const inputRef = useRef(null);
+  const [dropdownStyle, setDropdownStyle] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => update(), 60 * 60 * 1000);
@@ -39,7 +53,7 @@ export default function Feed() {
     async function fetchFeed() {
       try {
         const [recipesRes, userRes] = await Promise.all([
-          fetch("/api/feed"),
+          fetch(`/api/feed?page=${page}&limit=${limit}${activeFilter && activeFilter !== 'all' ? `&filter=${activeFilter}` : ''}`),
           fetch("/api/user/me"),
         ]);
 
@@ -52,8 +66,16 @@ export default function Feed() {
         const userData = userRes.ok && userIsJson ? await userRes.json() : null;
 
         const items = Array.isArray(recipesData) ? recipesData : (recipesData?.items || []);
-        setRecipes(items);
-        setFilteredRecipes(items);
+        // Deduplicate by _id defensively
+        const seen = new Set();
+        const unique = items.filter(r => {
+          const id = r?._id?.toString?.() ?? r?._id;
+          if (!id || seen.has(id)) return false;
+          seen.add(id);
+          return true;
+        });
+        setRecipes(unique);
+        setFilteredRecipes(unique);
         setUser(userData);
       } catch (error) {
         console.error("Failed to load feed", error);
@@ -66,71 +88,73 @@ export default function Feed() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [page, limit, activeFilter]);
 
-  // Fetch recipes when filter changes
+  // Debounced, abortable non-semantic suggestions
   useEffect(() => {
-    if (activeFilter === "all") return; // Don't refetch for "all" as it's the default
-
-    let cancelled = false;
-
-    async function fetchFilteredRecipes() {
-      try {
-        setIsLoading(true);
-        const recipesRes = await fetch(`/api/feed?filter=${activeFilter}`);
-        
-        if (cancelled) return;
-
-        const isJson = recipesRes.headers.get('content-type')?.includes('application/json');
-        const recipesData = recipesRes.ok && isJson ? await recipesRes.json() : { items: [] };
-        const items = Array.isArray(recipesData) ? recipesData : (recipesData?.items || []);
-        setRecipes(items);
-        setFilteredRecipes(items);
-      } catch (error) {
-        console.error("Failed to load filtered recipes", error);
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    }
-
-    fetchFilteredRecipes();
-    return () => {
-      cancelled = true;
-    };
-  }, [activeFilter]);
-
-  useEffect(() => {
-    if (!recipes.length) {
-      setFilteredRecipes([]);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      setShowDropdown(false);
       return;
     }
+    debounceRef.current = setTimeout(async () => {
+      if (abortRef.current) abortRef.current.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setSuggesting(true);
+      try {
+        const res = await fetch(`/api/recipe?q=${encodeURIComponent(searchQuery)}&limit=6`, { signal: controller.signal });
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (data?.items || []);
+        setSuggestions(items.slice(0, 4));
+        setShowDropdown(true);
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          setSuggestions([]);
+          setShowDropdown(false);
+        }
+      } finally {
+        setSuggesting(false);
+      }
+    }, 250);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [searchQuery]);
 
-    const next = recipes.filter((recipe) => {
-      const matchesSearch = searchQuery
-        ? [
-            recipe.title,
-            recipe.description,
-            recipe?.userId?.username,
-          ]
-            .filter(Boolean)
-            .some((value) =>
-              value.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        : true;
+  // Position the dropdown using fixed coordinates so it overlays all sections
+  useEffect(() => {
+    function updatePosition() {
+      if (!showDropdown || !inputRef.current) return;
+      const el = inputRef.current;
+      const rect = el.getBoundingClientRect();
+      setDropdownStyle({
+        position: 'fixed',
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [showDropdown, suggestions]);
 
-      // For trending and recent filters, we don't need additional filtering
-      // as the API already returns the correctly sorted data
-      const matchesFilter = 
-        activeFilter === "all" || 
-        activeFilter === "trending" || 
-        activeFilter === "recent" ||
-        recipe.category === activeFilter;
+  function goToSearch(e){
+    e?.preventDefault?.();
+    const params = new URLSearchParams();
+    params.set('q', searchQuery || '');
+    params.set('semantic', '0'); // do not use semantic for completion/search from feed
+    params.set('page', '1');
+    router.push(`/search?${params.toString()}`);
+  }
 
-      return matchesSearch && matchesFilter;
-    });
-
-    setFilteredRecipes(next);
-  }, [recipes, searchQuery, activeFilter]);
+  function selectSuggestion(recipe){
+    router.push(`/recipe?id=${recipe._id}`);
+  }
 
   const heroCopy = useMemo(
     () => ({
@@ -167,17 +191,58 @@ export default function Feed() {
         </section>
 
         {/* Search + Filters */}
-        <section className="card p-6 space-y-6">
+        <section className="card p-6 space-y-6 overflow-visible relative z-[100] isolate">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search recipes, ingredients, or chefs..."
-                className="input-field pl-10"
-                type="search"
-              />
+            <div className="flex-1 relative z-50 overflow-visible">
+              <form onSubmit={goToSearch}>
+                <div className="relative overflow-visible flex items-center">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    onFocus={()=>{ if (suggestions.length>0) setShowDropdown(true); }}
+                    placeholder="Search recipes, ingredients, or chefs..."
+                    className="input-field pl-10 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:shadow-none focus:border-orange-500 flex-1"
+                    type="search"
+                    ref={inputRef}
+                  />
+                  <button
+                    type="submit"
+                    className="ml-2 h-10 px-4 rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-md border border-transparent hover:opacity-95 focus:outline-none focus:ring-0 focus:ring-offset-0 transition-none hover:shadow-none shrink-0"
+                  >
+                    Search
+                  </button>
+                </div>
+                {showDropdown && dropdownStyle && typeof window !== 'undefined' && createPortal(
+                  (
+                    <div className="bg-white rounded-xl shadow-2xl text-left z-[9999] border border-gray-100"
+                         style={dropdownStyle}
+                    >
+                      {suggesting && (
+                        <div className="p-3 text-sm text-gray-500">Searching...</div>
+                      )}
+                      {!suggesting && suggestions.length === 0 && (
+                        <div className="p-3 text-sm text-gray-500">No matches</div>
+                      )}
+                      {!suggesting && suggestions.map(r => (
+                        <button
+                          key={r._id}
+                          type="button"
+                          onClick={()=>selectSuggestion(r)}
+                          className="w-full text-left p-3 hover:bg-gray-50 flex items-center gap-3"
+                        >
+                          <img src={r.image || 'https://via.placeholder.com/64'} alt="thumb" className="w-12 h-12 object-cover rounded" />
+                          <div>
+                            <div className="font-medium text-gray-800">{r.title}</div>
+                            <div className="text-xs text-gray-500 line-clamp-1">{r.description}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ),
+                  document.body
+                )}
+              </form>
             </div>
             <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-white transition-colors duration-200">
               <FunnelIcon className="w-5 h-5" />
@@ -240,6 +305,15 @@ export default function Feed() {
               </p>
             </div>
           </header>
+
+          {/* Pagination controls */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">Page {page}</div>
+            <div className="flex items-center gap-2">
+              <button onClick={()=> setPage(p => Math.max(1, p-1))} disabled={page===1} className="px-3 py-1.5 rounded border text-sm disabled:opacity-50">Prev</button>
+              <button onClick={()=> setPage(p => p+1)} disabled={recipes.length < limit} className="px-3 py-1.5 rounded border text-sm disabled:opacity-50">Next</button>
+            </div>
+          </div>
 
           {filteredRecipes.length === 0 ? (
             <div className="card p-10 text-center space-y-4">

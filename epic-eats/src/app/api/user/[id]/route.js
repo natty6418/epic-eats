@@ -17,7 +17,16 @@ export async function GET(request, { params}) {
     await connectDB();
     const { id } = params;
     if (id === 'me') {
-        const user = await User.findById(session.user.id)?.select('-password');
+        const userId = session?.user?.id;
+        if (!userId) {
+            return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+                status: 401,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+        const user = await User.findById(userId)?.select('-password');
         if (!user) {
             return new Response(JSON.stringify({ error: 'User not found' }), {
                 status: 404,

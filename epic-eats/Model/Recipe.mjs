@@ -25,7 +25,8 @@ const recipeSchema = new Schema({
       createdAt: {type: Date, required: true},
       image: {type: String},
       likes: {type: [{ type: Schema.Types.ObjectId, ref: 'User' }], default: []},
-      likesCount: { type: Number, default: 0 }
+      likesCount: { type: Number, default: 0 },
+      embedding: { type: [Number], default: [] }
 });
 
 // Index to accelerate trending sorting
