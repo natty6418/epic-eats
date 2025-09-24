@@ -16,7 +16,6 @@ const nextConfig = {
         'snappy',
         'socks',
         'aws4',
-        'gcp-metadata',
         'mongodb',
         'mongoose'
       );
@@ -45,12 +44,12 @@ const nextConfig = {
     //   "onnxruntime-node$": false,
     // };
 
-    // Ignore specific modules that cause issues
-    config.plugins.push(
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^(kerberos|@mongodb-js\/zstd|mongodb-client-encryption|snappy|socks|aws4|gcp-metadata)$/,
-      })
-    );
+        // Ignore specific modules that cause issues
+        config.plugins.push(
+          new webpack.IgnorePlugin({
+            resourceRegExp: /^(kerberos|@mongodb-js\/zstd|mongodb-client-encryption|snappy|socks|aws4)$/,
+          })
+        );
 
     // Additional ignore patterns for problematic modules
     config.plugins.push(
