@@ -15,7 +15,6 @@ const nextConfig = {
             'snappy',
             'socks',
             'aws4',
-            'gcp-metadata',
             'mongodb',
             'mongoose'
           );
@@ -41,7 +40,7 @@ const nextConfig = {
         // Ignore specific modules that cause issues
         config.plugins.push(
           new webpack.IgnorePlugin({
-            resourceRegExp: /^(kerberos|@mongodb-js\/zstd|mongodb-client-encryption|snappy|socks|aws4|gcp-metadata)$/,
+            resourceRegExp: /^(kerberos|@mongodb-js\/zstd|mongodb-client-encryption|snappy|socks|aws4)$/,
           })
         );
 
