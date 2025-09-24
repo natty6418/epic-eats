@@ -34,13 +34,7 @@ export default function ChatBox({ profilePic, onMessagesChange, initialMessages 
     setIsTyping(true);
     const newHistory = [...history, { role: 'user', content: currentInput }];
     setHistory(newHistory);
-    console.log(
-      JSON.stringify({
-        history: newHistory,
-        isFirstTurn: history.length === 0,
-      })
-
-    )
+   
 
     try {
       const response = await fetch('/api/chat', {

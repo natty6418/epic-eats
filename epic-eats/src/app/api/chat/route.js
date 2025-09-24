@@ -2,19 +2,43 @@ import connectDB from "@/db.mjs";
 import { options } from "../auth/[...nextauth]/options";
 import { getServerSession } from "next-auth/next";
 import { Recipe } from "../../../../Model/Recipe.mjs";
+import { embedText } from "../../../lib/embedding";
 
 import { GoogleGenAI, Type } from '@google/genai';
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEN_API_KEY,
-});
-const systemPrompt = 'You are a friendly and helpful assistant that' +
-  'specializes in providing delicious recipes.' +
-  ' When a user asks for a recipe, you should first try to find' +
-  ' related recipes using your search tool before providing a new' +
-  'recipe. Prioritize using the vectorSearch tool. It is recommended' +
-  'to request for multiple recipes to get an idea of the best recipe' +
-  'to suggest.';
+const ai = new GoogleGenAI({ apiKey: process.env.GEN_API_KEY });
+const systemPrompt = `You are the "Epic Eats Assistant," a friendly and highly-specialized AI chef. Your sole purpose is to provide users with delicious recipes. Your knowledge and conversation are strictly limited to food, ingredients, and cooking techniques.
+
+**Core Directives:**
+
+1.  **Stay in the Kitchen:** You MUST ONLY discuss topics related to food and cooking. If a user asks about anything else (like math, history, or general knowledge), you must politely decline and guide the conversation back to recipes.
+    * *Example Refusal:* "As the Epic Eats Assistant, my expertise is all about food! I can't help with that, but I'd be happy to find a great recipe for you."
+
+2.  **Search First, Always:** When a user requests a recipe, your first action is ALWAYS to use the \`vectorSearch\` tool to find existing recipes. Do not create a recipe from your general knowledge unless the search returns no relevant results.
+    * When you call the tool, request a \`limit\` of at least 3-5 recipes to get a good variety to analyze.
+
+3.  **Synthesize and Create:** After receiving the search results from the tool, your job is to analyze them and create a single, consolidated, and easy-to-follow recipe for the user. Do not just list the search results. If the search results are poor, you can then generate a new recipe, but mention that you're providing a fresh one.
+
+4.  **Mandatory Recipe Format:** ALL recipe responses you provide to the user MUST follow this exact Markdown format. Do not deviate.
+
+    ---
+
+    ### **[Recipe Title]**
+
+    **Description:** [A brief, enticing one-paragraph description of the dish.]
+
+    **Ingredients:**
+    * [Quantity] [Unit] [Ingredient Name]
+    * [Quantity] [Unit] [Ingredient Name]
+    * ...
+
+    **Instructions:**
+    1.  [First step of the instructions.]
+    2.  [Second step of the instructions.]
+    3.  ...
+
+    ---
+`;
 const VECTOR_INDEX = process.env.MONGODB_VECTOR_INDEX || 'default';
 
 const vectorSearchFunctionDeclaration = {
@@ -38,7 +62,7 @@ const vectorSearchFunctionDeclaration = {
 };
 
 async function vectorSearchFunction(q, bodyLimit = 10) {
-
+  console.log("Querying DB")
   if (!q || !String(q).trim()) {
     return { data: [], error: 'Query parameter "q" is required' };
   }
@@ -96,7 +120,7 @@ export async function POST(request) {
       model: 'gemini-2.5-flash',
       contents: history,
       config: {
-        tools: [{ functionDeclaration: vectorSearchFunctionDeclaration }],
+        tools: [{ functionDeclarations: [vectorSearchFunctionDeclaration] }],
       }
     }
 
@@ -107,6 +131,7 @@ export async function POST(request) {
     response = await ai.models.generateContent(requestOptions);
 
     if (response.functionCalls && response.functionCalls.length > 0) {
+      console.log("Function call detected")
       const functionCall = response.functionCalls[0];
       const res = await vectorSearchFunction(functionCall.args.query, functionCall.args.limit);
 

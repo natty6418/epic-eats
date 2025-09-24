@@ -3,7 +3,7 @@ import { Schema } from 'mongoose';
 import joi from 'joi';
 
 const messageSchema = new Schema({
-    sender: { type: String, required: true, enum: ['user', 'assistant'] },
+    sender: { type: String, required: true, enum: ['user', 'assistant', 'model'] },
     text: { type: String, required: true },
 }, { _id: false });
 
@@ -20,7 +20,7 @@ function validateChat(chat){
     const schema = joi.object({
         data: joi.array().items(
             joi.object({
-                sender: joi.string().valid('user', 'assistant').required(),
+                sender: joi.string().valid('user', 'assistant', 'model').required(),
                 text: joi.string().required(),
             })
         ).min(1).required(),
