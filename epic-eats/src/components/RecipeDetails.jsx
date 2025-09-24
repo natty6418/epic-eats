@@ -72,7 +72,8 @@ function RecipeDetail({ recipeId }) {
         setCurrentUser({...currentUser, savedRecipes: currentUser.savedRecipes.filter(id => id !== recipe._id)});
     }
     function SaveStatus() {
-        if (currentUser.savedRecipes.includes(recipeId)) {
+        const savedList = currentUser?.savedRecipes || [];
+        if (savedList.includes(recipeId)) {
             return (
                 <svg 
                 onClick={removeRecipe}
@@ -139,85 +140,88 @@ function RecipeDetail({ recipeId }) {
     const visibleIngredients = showAllIngredients ? ingredientLabels : ingredientLabels.slice(0, 8);
 
     return (
-        <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="card p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <Link href={`/profile/${user._id}`} className="flex items-center group">
-              <img
-                src={user?.profilePic || "https://via.placeholder.com/150"}
-                alt="Profile Picture"
-                className="w-16 h-16 object-cover rounded-full border-4 border-white group-hover:border-orange-200 transition-all duration-300"
-              />
-              <div className="ml-4">
-                <p className="text-lg font-bold text-gray-800 group-hover:text-orange-600 transition-colors">
-                  {user?.username}
-                </p>
-                <p className="text-sm text-gray-500">
+        <div className="min-h-screen py-8 sm:py-10 px-4 sm:px-6 lg:px-10">
+      <div className="max-w-7xl mx-auto">
+        {/* Hero Header */}
+        <div className="card p-6 sm:p-8 mb-8">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-text font-poppins leading-tight">
+                {recipe.title}
+              </h1>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="chip">{recipe.cookTime || '30'} min</span>
+                {recipe.rating && (
+                  <span className="chip bg-yellow-100 text-yellow-800">★ {recipe.rating}</span>
+                )}
+                {recipe.category && <span className="chip">{recipe.category}</span>}
+                {Array.isArray(recipe.tags) &&
+                  recipe.tags.slice(0, 3).map((t, i) => (
+                    <span key={i} className="chip">#{t}</span>
+                  ))}
+              </div>
+              <div className="mt-3 flex items-center gap-3 text-sm text-gray-500">
+                <Link href={`/profile/${user?._id}`} className="flex items-center gap-2 hover:text-orange-600">
+                  <img
+                    src={user?.profilePic || "https://via.placeholder.com/150"}
+                    alt="Profile Picture"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  <span className="font-medium">{user?.username}</span>
+                </Link>
+                <span className="text-gray-400">•</span>
+                <span>
                   {new Date(recipe.createdAt).toLocaleDateString("en-US", {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                   })}
-                </p>
+                </span>
               </div>
-            </Link>
-            <div className="flex items-center gap-4">
+            </div>
+            <div className="flex items-center gap-3">
               {currentUser?._id === user?._id ? (
-                <Link href={`/recipe/edit/${recipeId}`} className="text-gray-500 hover:text-orange-600 transition-colors">
+                <Link href={`/recipe/edit/${recipeId}`} className="text-gray-500 hover:text-orange-600 transition-colors" title="Edit recipe">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                     <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
                     <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
                   </svg>
                 </Link>
               ) : (
-                <button className="focus:outline-none">
+                <button className="focus:outline-none" title="Save recipe">
                   <SaveStatus />
                 </button>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold gradient-text font-poppins mb-4 text-center">
-            {recipe.title}
-          </h1>
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left: Content */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Image */}
+            {recipe.image && (
+              <div className="relative overflow-hidden rounded-2xl shadow-lg h-72 sm:h-80 md:h-96">
+                <img src={recipe.image} alt={recipe.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              </div>
+            )}
 
-          {/* Image */}
-          {recipe.image && (
-            <div className="relative my-6 overflow-hidden rounded-2xl shadow-lg">
-              <img src={recipe.image} alt={recipe.title} className="w-full h-80 object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            {/* Description */}
+            <div className="card p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">Description</h2>
+              <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+                {recipe.description}
+              </p>
             </div>
-          )}
 
-          {/* Meta */}
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            <span className="chip">{recipe.cookTime || '30'} min</span>
-            {recipe.rating && <span className="chip bg-yellow-100 text-yellow-800">★ {recipe.rating}</span>}
-            {recipe.category && <span className="chip">{recipe.category}</span>}
-            {Array.isArray(recipe.tags) &&
-              recipe.tags.slice(0, 3).map((t, i) => (
-                <span key={i} className="chip">#{t}</span>
-              ))}
-          </div>
-
-          {/* Description */}
-          <div className="card p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Description</h2>
-            <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-              {recipe.description}
-            </p>
-          </div>
-
-          {/* Main Content */}
-          <div className="grid md:grid-cols-5 gap-8">
-            {/* Ingredients */}
-            <div className="md:col-span-2">
-              <div className="card p-6 sticky top-24">
+            {/* Ingredients + Instructions balanced */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Ingredients */}
+              <div className="card p-6 h-full min-h-[380px] flex flex-col">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
-                <ul className="space-y-3">
+                <ul className="space-y-3 overflow-auto pr-1 flex-1">
                   {visibleIngredients.map((label, index) => (
                     <li key={index} className="flex justify-between items-center pb-2 border-b border-gray-100">
                       <span className="font-medium text-gray-800">{label}</span>
@@ -233,38 +237,36 @@ function RecipeDetail({ recipeId }) {
                   </button>
                 )}
               </div>
-            </div>
 
-            {/* Instructions */}
-            <div className="md:col-span-3">
-              <div className="card p-6">
+              {/* Instructions */}
+              <div className="card p-6 h-full min-h-[380px] flex flex-col">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Instructions</h2>
-                <div className="prose max-w-none text-gray-700 leading-relaxed">
+                <div className="prose max-w-none text-gray-700 leading-relaxed flex-1 overflow-auto pr-1">
                   <p className="whitespace-pre-wrap">
                     {showFullInstructions ? recipe.instructions : instructionsPreview}
                   </p>
-                  {recipe.instructions.length > 150 && (
-                    <button
-                      className="text-orange-600 hover:text-orange-700 font-semibold mt-4"
-                      onClick={toggleInstructions}
-                    >
-                      {showFullInstructions ? 'Show Less' : 'Show More'}
-                    </button>
-                  )}
                 </div>
+                {recipe.instructions.length > 150 && (
+                  <button
+                    className="text-orange-600 hover:text-orange-700 font-semibold mt-4 self-start"
+                    onClick={toggleInstructions}
+                  >
+                    {showFullInstructions ? 'Show Less' : 'Show More'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Comments Section */}
-          <div className="mt-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Comments</h2>
-            <div className="card p-6 max-w-2xl mx-auto">
-              <form onSubmit={handleCommentSubmit} className="flex gap-4 items-center mb-6">
+          {/* Right: Sticky Comments */}
+          <aside className="lg:col-span-4">
+            <div className="card p-6 lg:sticky lg:top-24">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
+              <form onSubmit={handleCommentSubmit} className="flex gap-3 items-center mb-5">
                 <img
                   src={currentUser?.profilePic || "https://via.placeholder.com/150"}
                   alt="Your profile"
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover"
                 />
                 <input
                   value={newComment}
@@ -272,11 +274,9 @@ function RecipeDetail({ recipeId }) {
                   className="input-field flex-grow"
                   placeholder="Share your thoughts..."
                 />
-                <button type="submit" className="btn-primary">
-                  Post
-                </button>
+                <button type="submit" className="btn-primary">Post</button>
               </form>
-              <div className="space-y-6">
+              <div className="space-y-5 max-h-[460px] overflow-auto pr-1">
                 {comments.map((comment) => (
                   <Comment
                     key={comment._id}
@@ -287,9 +287,12 @@ function RecipeDetail({ recipeId }) {
                     createdAt={comment.createdAt}
                   />
                 ))}
+                {comments.length === 0 && (
+                  <p className="text-sm text-gray-500">Be the first to comment!</p>
+                )}
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </div>
@@ -297,3 +300,4 @@ function RecipeDetail({ recipeId }) {
 }
 
 export default RecipeDetail;
+

@@ -4,10 +4,7 @@ import ChatBox from "@/components/ChatBox";
 import Loading from "@/components/Loading";
 import { 
   ChatBubbleLeftEllipsisIcon, 
-  SparklesIcon, 
-  LightBulbIcon,
-  BookOpenIcon,
-  ClockIcon
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 export default function ChatPage() {
@@ -17,6 +14,7 @@ export default function ChatPage() {
     const [lastSavedCount, setLastSavedCount] = useState(0);
     const [history, setHistory] = useState([]);
     const [activeChatId, setActiveChatId] = useState(null);
+    const [showHistoryMobile, setShowHistoryMobile] = useState(false);
 
     useEffect(() => {
         async function fetchUser() {
@@ -109,34 +107,39 @@ export default function ChatPage() {
                     </p>
                 </div>
 
-                {/* Features Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <div className="card p-6 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <LightBulbIcon className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Cooking Tips</h3>
-                        <p className="text-gray-600 text-sm">Get expert advice on techniques, ingredients, and methods</p>
-                    </div>
-                    <div className="card p-6 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <BookOpenIcon className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Recipe Ideas</h3>
-                        <p className="text-gray-600 text-sm">Discover new recipes based on your preferences and ingredients</p>
-                    </div>
-                    <div className="card p-6 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <ClockIcon className="w-6 h-6 text-white" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Quick Answers</h3>
-                        <p className="text-gray-600 text-sm">Get instant help with cooking questions and troubleshooting</p>
-                    </div>
-                </div>
+                
 
                 {/* Chat Interface with History Sidebar */}
+                {/* Mobile controls */}
+                <div className="md:hidden mb-4 flex items-center justify-between gap-3">
+                    <button
+                        onClick={() => setShowHistoryMobile(v => !v)}
+                        className="px-3 py-2 text-sm rounded-md border border-orange-300 text-orange-700 bg-orange-50"
+                        aria-expanded={showHistoryMobile}
+                        aria-controls="mobile-history"
+                    >
+                        {showHistoryMobile ? 'Hide History' : 'Show History'}
+                    </button>
+                    <button
+                        onClick={() => {
+                            setActiveChatId(null);
+                            const welcome = [{
+                                text: "Hello! I'm your AI cooking assistant. I'm here to help you with recipes, cooking tips, ingredient substitutions, and any culinary questions you might have. What would you like to know?",
+                                sender: 'assistant'
+                            }];
+                            setMessages(welcome);
+                            setLastSavedCount(0);
+                        }}
+                        className="px-3 py-2 text-sm rounded-md bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+                    >
+                        New Chat
+                    </button>
+                </div>
+
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="md:col-span-1 card p-4 h-[600px] overflow-auto">
+                    {/* Sidebar (desktop) or collapsible (mobile) */}
+                    <div className="md:col-span-1">
+                        <div id="mobile-history" className={`card p-4 ${showHistoryMobile ? 'block' : 'hidden'} md:block md:h-[600px] overflow-auto`}>
                         <div className="flex items-center justify-between mb-3">
                             <h4 className="font-semibold text-gray-800">History</h4>
                             <button
@@ -166,6 +169,8 @@ export default function ChatPage() {
                                                     setActiveChatId(item.id);
                                                     setMessages(chat.data || []);
                                                     setLastSavedCount((chat.data || []).length);
+                                                    // Close mobile history when selecting a chat
+                                                    setShowHistoryMobile(false);
                                                 }
                                             }catch(e){
                                                 console.error('Failed to load chat:', e);
@@ -204,6 +209,7 @@ export default function ChatPage() {
                                     </button>
                                 </div>
                             ))}
+                        </div>
                         </div>
                     </div>
                     <div className="md:col-span-3">

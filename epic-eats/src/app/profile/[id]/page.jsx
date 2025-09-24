@@ -155,10 +155,10 @@ export default function ProfilePage({ params }) {
 
   const totalLikes = myRecipes.reduce((total, recipe) => total + (recipe.likes?.length || 0), 0);
   const totalCookTime = myRecipes.reduce((total, recipe) => total + parseInt(recipe.cookTime || 30), 0);
-  const memberSince = new Date(user.createdAt).toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long' 
-  });
+  const joinedDate = new Date(user.createdAt);
+  const memberSince = isNaN(joinedDate.getTime())
+    ? 'Unknown'
+    : joinedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
   const tabs = [
     { name: 'Recipes', icon: BookOpenIcon, count: myRecipes.length },
@@ -168,9 +168,9 @@ export default function ProfilePage({ params }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
         {/* Profile Header */}
-        <div className="card p-8 shadow-xl">
+        <div className="card p-8 lg:p-10 shadow-xl">
           <div className="flex flex-col lg:flex-row items-center gap-8">
             {/* Profile Picture */}
             <div className="relative">
@@ -179,9 +179,6 @@ export default function ProfilePage({ params }) {
                 alt="Profile Photo"
                 className="w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-xl"
               />
-              <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                {myRecipes.length}
-              </div>
             </div>
 
             {/* Profile Info */}
@@ -197,7 +194,7 @@ export default function ProfilePage({ params }) {
                   {isMyProfile ? (
                     <Link 
                       href="/profile/me/edit" 
-                      className="btn-primary inline-flex items-center gap-2"
+                      className="px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 inline-flex items-center gap-2"
                     >
                       <PencilIcon className="w-5 h-5" />
                       Edit Profile
@@ -219,9 +216,6 @@ export default function ProfilePage({ params }) {
                       )}
                     </button>
                   )}
-                  <button className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200">
-                    <ShareIcon className="w-5 h-5" />
-                  </button>
                 </div>
               </div>
 
@@ -238,34 +232,46 @@ export default function ProfilePage({ params }) {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <BookOpenIcon className="w-6 h-6 text-white" />
+        {/* Stats Cards (compact horizontal) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="card p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center ring-1 ring-orange-200">
+                <BookOpenIcon className="w-4 h-4 text-white" />
+              </div>
+              <div className="leading-tight">
+                <div className="text-2xl font-semibold text-gray-800">{myRecipes.length}</div>
+                <div className="text-gray-600 text-xs">Recipes</div>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800">{myRecipes.length}</h3>
-            <p className="text-gray-600">Recipes</p>
           </div>
-          <div className="card p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <HeartSolidIcon className="w-6 h-6 text-white" />
+          <div className="card p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <HeartSolidIcon className="w-4 h-4 text-white" />
+              </div>
+              <div className="leading-tight">
+                <div className="text-xl font-semibold text-gray-800">{totalLikes}</div>
+                <div className="text-gray-600 text-xs">Total Likes</div>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800">{totalLikes}</h3>
-            <p className="text-gray-600">Total Likes</p>
           </div>
-          <div className="card p-6 text-center">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <UsersIcon className="w-6 h-6 text-white" />
+          <div className="card p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <UsersIcon className="w-4 h-4 text-white" />
+              </div>
+              <div className="leading-tight">
+                <div className="text-xl font-semibold text-gray-800">{followers.length}</div>
+                <div className="text-gray-600 text-xs">Followers</div>
+              </div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800">{followers.length}</h3>
-            <p className="text-gray-600">Followers</p>
           </div>
         </div>
 
         {/* Tabs */}
         <Tab.Group>
-          <Tab.List className="flex space-x-1 rounded-xl p-1">
+          <Tab.List className="flex space-x-1 rounded-xl p-1 bg-white/70 backdrop-blur border border-gray-200">
             {tabs.map((tab) => (
               <Tab
                 key={tab.name}
@@ -275,7 +281,7 @@ export default function ProfilePage({ params }) {
                     'ring-white ring-opacity-60 ring-offset-2 ring-offset-orange-400 focus:outline-none focus:ring-2',
                     selected
                       ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                      : 'text-gray-700 hover:bg-white hover:shadow'
                   )
                 }
               >
@@ -315,22 +321,22 @@ export default function ProfilePage({ params }) {
                   </div>
                 ) : (
                   <div className="card p-12 text-center">
-                    <div className="w-24 h-24 rounded-full mx-auto bg-gray-100 flex items-center justify-center mb-6">
-                      <BookOpenIcon className="w-12 h-12 text-gray-400" />
+                    <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 flex items-center justify-center mb-6">
+                      <BookOpenIcon className="w-12 h-12 text-orange-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {isMyProfile ? "No recipes yet" : "No recipes found"}
+                      {isMyProfile ? "You haven't posted any recipes yet" : "No recipes to show"}
                     </h3>
                     <p className="text-gray-600 mb-6">
                       {isMyProfile 
-                        ? "Start sharing your culinary creations with the community!"
-                        : "This user hasn't shared any recipes yet."
+                        ? "Share your first recipe and inspire the community!"
+                        : "Check back later or explore other profiles and the feed."
                       }
                     </p>
                     {isMyProfile && (
                       <Link href="/create" className="btn-primary inline-flex items-center gap-2">
                         <SparklesIcon className="w-5 h-5" />
-                        Create Your First Recipe
+                        Create Recipe
                       </Link>
                     )}
                   </div>
@@ -350,13 +356,13 @@ export default function ProfilePage({ params }) {
                   </div>
                 ) : (
                   <div className="card p-12 text-center">
-                    <div className="w-24 h-24 rounded-full mx-auto bg-gray-100 flex items-center justify-center mb-6">
-                      <UsersIcon className="w-12 h-12 text-gray-400" />
+                    <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 flex items-center justify-center mb-6">
+                      <UsersIcon className="w-12 h-12 text-orange-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">No followers yet</h3>
                     <p className="text-gray-600">
                       {isMyProfile 
-                        ? "Share amazing recipes to attract followers!"
+                        ? "Post great recipes and engage with others to grow your audience."
                         : "This user doesn't have any followers yet."
                       }
                     </p>
@@ -377,24 +383,18 @@ export default function ProfilePage({ params }) {
                   </div>
                 ) : (
                   <div className="card p-12 text-center">
-                    <div className="w-24 h-24 rounded-full mx-auto bg-gray-100 flex items-center justify-center mb-6">
-                      <UserIcon className="w-12 h-12 text-gray-400" />
+                    <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 flex items-center justify-center mb-6">
+                      <UserIcon className="w-12 h-12 text-orange-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {isMyProfile ? "Not following anyone yet" : "Not following anyone"}
+                      {isMyProfile ? "You're not following anyone yet" : "Not following anyone"}
                     </h3>
                     <p className="text-gray-600">
                       {isMyProfile 
-                        ? "Discover amazing chefs and follow them for inspiration!"
+                        ? "Explore the feed and follow chefs you like to personalize your experience."
                         : "This user isn't following anyone yet."
                       }
                     </p>
-                    {isMyProfile && (
-                      <Link href="/feed" className="btn-primary inline-flex items-center gap-2 mt-4">
-                        <SparklesIcon className="w-5 h-5" />
-                        Explore Feed
-                      </Link>
-                    )}
                   </div>
                 )}
               </div>

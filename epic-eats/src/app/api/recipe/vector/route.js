@@ -11,7 +11,6 @@ const VECTOR_INDEX = process.env.MONGODB_VECTOR_INDEX || 'default';
 
 // --- HANDLE VECTOR SEARCH (POST) ---
 export async function POST(request) {
-  console.log('Received vector search request');
   const session = await getServerSession(options);
   if (!session) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
@@ -89,8 +88,7 @@ export async function POST(request) {
       }
     ];
     const items = await Recipe.aggregate(aggregationPipeline);
-    console.log(`Vector search found ${items.length} items for query: "${q}"`)
-    console.log('Items:', items);
+   
     return new Response(JSON.stringify({ items, total: items.length, page, limit }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
   } catch (e) {

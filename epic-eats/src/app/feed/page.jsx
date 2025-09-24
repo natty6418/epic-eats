@@ -41,6 +41,11 @@ export default function Feed() {
   const abortRef = useRef(null);
   const inputRef = useRef(null);
   const [dropdownStyle, setDropdownStyle] = useState(null);
+  // Advanced filters state
+  const [showFilters, setShowFilters] = useState(false);
+  const [minLikes, setMinLikes] = useState(0);
+  const [maxCookTime, setMaxCookTime] = useState(0); // 0 = no limit
+  const [tagQuery, setTagQuery] = useState(""); // comma-separated
 
   useEffect(() => {
     const timer = setInterval(() => update(), 60 * 60 * 1000);
@@ -143,6 +148,41 @@ export default function Feed() {
     };
   }, [showDropdown, suggestions]);
 
+  // Recompute filteredRecipes when data or filters change
+  useEffect(() => {
+    if (!recipes.length) {
+      setFilteredRecipes([]);
+      return;
+    }
+    const tags = tagQuery
+      .split(',')
+      .map(t => t.trim().toLowerCase())
+      .filter(Boolean);
+    const passes = (recipe) => {
+      // search terms
+      const matchesSearch = searchQuery
+        ? [recipe.title, recipe.description, recipe?.userId?.username]
+            .filter(Boolean)
+            .some((v) => v.toLowerCase().includes(searchQuery.toLowerCase()))
+        : true;
+      // top-level filter chip
+      const matchesFilter =
+        activeFilter === "all" ||
+        activeFilter === "trending" ||
+        activeFilter === "recent" ||
+        recipe.category === activeFilter;
+      // advanced: likes
+      const likesCount = typeof recipe.likesCount === 'number' ? recipe.likesCount : (Array.isArray(recipe.likes) ? recipe.likes.length : 0);
+      const likesOK = minLikes > 0 ? likesCount >= minLikes : true;
+      // advanced: cookTime
+      const timeOK = maxCookTime > 0 ? (Number(recipe.cookTime) || 0) <= maxCookTime : true;
+      // advanced: tags (any match)
+      const tagsOK = tags.length ? (Array.isArray(recipe.tags) && recipe.tags.some(t => tags.includes(String(t).toLowerCase()))) : true;
+      return matchesSearch && matchesFilter && likesOK && timeOK && tagsOK;
+    };
+    setFilteredRecipes(recipes.filter(passes));
+  }, [recipes, searchQuery, activeFilter, minLikes, maxCookTime, tagQuery]);
+
   function goToSearch(e){
     e?.preventDefault?.();
     const params = new URLSearchParams();
@@ -189,6 +229,34 @@ export default function Feed() {
             {heroCopy.subtitle}
           </p>
         </section>
+
+        {/* Advanced Filters Modal */}
+        {showFilters && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40" onClick={()=>setShowFilters(false)}></div>
+            <div className="relative z-[210] bg-white rounded-xl shadow-2xl w-full max-w-lg p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">Advanced Filters</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Minimum Likes</label>
+                  <input type="number" min="0" value={minLikes} onChange={(e)=>setMinLikes(Number(e.target.value)||0)} className="input-field w-full" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Max Cook Time (min)</label>
+                  <input type="number" min="0" value={maxCookTime} onChange={(e)=>setMaxCookTime(Number(e.target.value)||0)} className="input-field w-full" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm text-gray-600 mb-1">Tags (comma-separated)</label>
+                  <input type="text" value={tagQuery} onChange={(e)=>setTagQuery(e.target.value)} placeholder="e.g. vegan, dessert" className="input-field w-full" />
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 mt-6">
+                <button onClick={()=>{ setMinLikes(0); setMaxCookTime(0); setTagQuery(""); }} className="px-3 py-2 text-sm rounded-lg border">Clear</button>
+                <button onClick={()=>setShowFilters(false)} className="px-4 py-2 text-sm rounded-lg text-white bg-gradient-to-r from-orange-500 to-pink-500">Apply</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Search + Filters */}
         <section className="card p-6 space-y-6 overflow-visible relative z-[100] isolate">
@@ -244,7 +312,7 @@ export default function Feed() {
                 )}
               </form>
             </div>
-            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-white transition-colors duration-200">
+            <button onClick={()=>setShowFilters(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-white transition-colors duration-200">
               <FunnelIcon className="w-5 h-5" />
               Advanced Filters
             </button>
@@ -287,7 +355,7 @@ export default function Feed() {
 
         {/* Feed */}
         <section className="space-y-6">
-          <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+          {activeFilter != "all" && <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-2">
             <div>
               <h2 className="text-2xl font-bold text-gray-800">
                 {searchQuery
@@ -296,24 +364,15 @@ export default function Feed() {
                   ? "Trending Recipes"
                   : activeFilter === "recent"
                   ? "Recent Recipes"
-                  : "Latest Recipes"}
+                  : ""}
               </h2>
               <p className="text-gray-500 text-sm">
-                {filteredRecipes.length} recipe
-                {filteredRecipes.length === 1 ? "" : "s"} found
                 {activeFilter === "trending" && " • Sorted by most liked"}
               </p>
             </div>
-          </header>
+          </header>}
 
-          {/* Pagination controls */}
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">Page {page}</div>
-            <div className="flex items-center gap-2">
-              <button onClick={()=> setPage(p => Math.max(1, p-1))} disabled={page===1} className="px-3 py-1.5 rounded border text-sm disabled:opacity-50">Prev</button>
-              <button onClick={()=> setPage(p => p+1)} disabled={recipes.length < limit} className="px-3 py-1.5 rounded border text-sm disabled:opacity-50">Next</button>
-            </div>
-          </div>
+          
 
           {filteredRecipes.length === 0 ? (
             <div className="card p-10 text-center space-y-4">
@@ -348,6 +407,15 @@ export default function Feed() {
               ))}
             </div>
           )}
+
+          {/* Pagination controls */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600">Page {page}</div>
+            <div className="flex items-center gap-2">
+              <button onClick={()=> setPage(p => Math.max(1, p-1))} disabled={page===1} className="px-3 py-1.5 rounded border text-sm disabled:opacity-50">Prev</button>
+              <button onClick={()=> setPage(p => p+1)} disabled={recipes.length < limit} className="px-3 py-1.5 rounded border text-sm disabled:opacity-50">Next</button>
+            </div>
+          </div>
         </section>
       </div>
     </div>

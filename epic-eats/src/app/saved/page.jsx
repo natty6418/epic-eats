@@ -139,52 +139,48 @@ export default function SavedRecipes() {
                     </p>
                 </section>
 
+                 {/* Search Section */}
+                 <SearchBar recipes={recipes} setRecipes={setRecipes} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
                 {/* Stats Cards */}
-                <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="card p-6 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <BookmarkSolidIcon className="w-6 h-6 text-white" />
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="card p-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center">
+                                <BookmarkSolidIcon className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="leading-tight">
+                                <div className="text-2xl font-semibold text-gray-800">{recipes.length}</div>
+                                <div className="text-gray-600 text-xs">Saved Recipes</div>
+                            </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800">{recipes.length}</h3>
-                        <p className="text-gray-600">Saved Recipes</p>
                     </div>
-                    <div className="card p-6 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <HeartIcon className="w-6 h-6 text-white" />
+                    <div className="card p-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                                <HeartIcon className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="leading-tight">
+                                <div className="text-2xl font-semibold text-gray-800">
+                                    {recipes.reduce((total, recipe) => total + (recipe.likes?.length || 0), 0)}
+                                </div>
+                                <div className="text-gray-600 text-xs">Total Likes</div>
+                            </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800">
-                            {recipes.reduce((total, recipe) => total + (recipe.likes?.length || 0), 0)}
-                        </h3>
-                        <p className="text-gray-600">Total Likes</p>
                     </div>
-                    <div className="card p-6 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <ClockIcon className="w-6 h-6 text-white" />
+                    <div className="card p-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                                <ClockIcon className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="leading-tight">
+                                <div className="text-2xl font-semibold text-gray-800">
+                                    {recipes.reduce((total, recipe) => total + parseInt(recipe.cookTime || 30), 0)}
+                                </div>
+                                <div className="text-gray-600 text-xs">Total Cook Time (min)</div>
+                            </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800">
-                            {recipes.reduce((total, recipe) => total + parseInt(recipe.cookTime || 30), 0)}
-                        </h3>
-                        <p className="text-gray-600">Total Cook Time (min)</p>
                     </div>
-                </section>
-
-                {/* Search Section */}
-                <SearchBar recipes={recipes} setRecipes={setRecipes} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
-                {/* CTA Section */}
-                <section className="card p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                            Discover More Recipes
-                        </h3>
-                        <p className="text-gray-600">
-                            Explore our community's amazing creations and find your next favorite dish!
-                        </p>
-                    </div>
-                    <Link href="/feed" className="btn-primary inline-flex items-center gap-2">
-                        <SparklesIcon className="w-5 h-5" />
-                        Browse Feed
-                    </Link>
                 </section>
 
                 {/* Recipes Grid */}

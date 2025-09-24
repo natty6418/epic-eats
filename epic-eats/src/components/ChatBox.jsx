@@ -160,9 +160,7 @@ export default function ChatBox({ profilePic, onMessagesChange, initialMessages 
                         onKeyPress={handleKeyPress}
                         disabled={isTyping}
                     />
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
-                        Press Enter to send
-                    </div>
+                    
                 </div>
                 <button
                     type="submit"
