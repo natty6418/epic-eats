@@ -2,6 +2,8 @@
 
 Epic Eats is a modern, social recipe-sharing platform built with Next.js 13 (App Router). Discover, create, and share recipes, follow creators, chat with an AI cooking assistant, and personalize your culinary journey.
 
+- Live site: [Epic Eats](https://epic-eats.vercel.app/)
+
 ## Features
 
 - **Landing experience**: Polished home page at `/home` with animated hero, feature highlights, testimonials, and clear CTAs.
@@ -95,9 +97,6 @@ npm run dev
 
 Visit `http://localhost:3000`. The app will redirect visitors from `/` to `/home`, and signed-in users from `/` to `/feed`.
 
-### Production
-
-- Live site: [Epic Eats](https://epic-eats.vercel.app/)
 
 ### Build and Start
 
