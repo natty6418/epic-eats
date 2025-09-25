@@ -1,151 +1,218 @@
-# Epic Eats 
-[Visit Site](https://epic-eats.vercel.app/home)
-## Overview
+# Epic Eats
 
-Looking for a place to share and discover delightful recepies? Then you are at the right spot.
+Epic Eats is a modern, social recipe-sharing platform built with Next.js 13 (App Router). Discover, create, and share recipes, follow creators, chat with an AI cooking assistant, and personalize your culinary journey.
 
-Introducing Epic Eats, your go-to digital diary for uncovering and sharing the world’s most delightful recipes. Whether you're a seasoned chef or a kitchen newbie, this platform is designed to inspire culinary creativity and bring the joy of cooking to your home.
+## Features
 
+- **Landing experience**: Polished home page at `/home` with animated hero, feature highlights, testimonials, and clear CTAs.
+- **Authentication**: NextAuth-based sessions with redirect logic:
+  - Authenticated users are redirected to `/feed` from `/`.
+  - Visitors are redirected to `/home` from `/`.
+- **Navigation**: Global navbar and footer across the app; navbar is automatically hidden on the landing route `/home`.
+- **Feed**: Browse community recipes at `/feed`.
+- **Search**: Full-text search at `/search`.
+- **Profiles**: Rich profile pages at `/profile/[id]` with:
+  - Header section, bio, member since, compact stats (Recipes, Total Likes, Followers)
+  - Tabs for Recipes, Followers, and Following
+  - Follow/Unfollow actions and counts
+- **Recipe creation**: Create new recipes at `/create` with image support (Cloudinary).
+- **Save recipes**: Save/bookmark recipes for later at `/saved`.
+- **AI Assistant**: Advanced chat at `/chat` with:
+  - Retrieval-Augmented Generation (RAG) over recipe/content data
+  - Tool calling/actions for tasks like recipe lookup, saving, and more
+  - Powered by `@google/genai` (and local models via `@xenova/transformers` where applicable)
 
-## Data Model 
+## Tech Stack
 
-The application will store Users, Recepie and Comment.
+- **Framework**: Next.js 13.5 (App Router), React 18
+- **Auth**: `next-auth`
+- **Database**: MongoDB via `mongoose`
+- **UI**: Tailwind CSS, Headless UI, Heroicons, Material UI components
+- **Media**: Cloudinary (`next-cloudinary`)
+- **AI**: `@google/genai`, `@xenova/transformers`; RAG pipeline + tool calling
+- **Testing**: Jest, Testing Library
 
-* A user can have multiple recepies (via references)
-* A user can have multiple followers (via references)
-* A user can be following multiple users (via references)
-* Each recepie can have multiple comments (via references)
+## Project Structure
 
-An Example User:
-
-```javascript
-{
-  username: "theCook",
-  email: // a unique identifier for the user,
-  password: // a password hash,
-  recepies: // an array of references to Recepies,
-  savedRecepies: // an array of references to Recepies,
-  followers: // an array of references to Users,
-  following: // an array of references to Users,
-  profilePic: // a reference to an Image
-}
+```
+epic-eats/
+  src/
+    app/
+      page.js                # Entry: redirects to /feed or /home
+      layout.js              # Root layout with NavBarWrapper and Footer
+      home/page.jsx          # Public landing page
+      feed/page.jsx          # Main feed
+      search/page.jsx        # Search
+      create/page.jsx        # Create recipe
+      chat/page.jsx          # AI assistant chat
+      profile/[id]/page.jsx  # User profile
+      recipe/...
+      api/...
+    components/
+      NavBar.jsx
+      NavBarWrapper.jsx      # Hides navbar on /home
+      HomePage.jsx
+      RecipeCard.jsx
+      ...
+  public/
+  package.json
+  README.md
 ```
 
-An Example Recepie:
+## Getting Started
 
-```javascript
-{
-  userId: // a reference to a User id,
-  title: "Chocolate Cake",
-  description: "A delicious chocolate cake",
-  ingredients: // an array of strings,
-  instructions: // a string,
-  image: // a reference to an Image,
-  comments: // an array of references to Comments
-  createdAt: // timestamp
-}
+### Prerequisites
+
+- Node.js 18+
+- A MongoDB connection string
+- Cloudinary account (optional but recommended)
+- API keys as needed for AI features
+
+### Environment Variables
+
+Create a `.env.local` in the project root with at least:
+
+```
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret
+MONGODB_URI=your_mongodb_connection_string
+
+# Cloudinary (if using uploads)
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+
+# Google GenAI
+GOOGLE_API_KEY=your_google_genai_api_key
 ```
 
-An Example of Comment:
-  
-  ```javascript
-  {
-    userId: // a reference to a User id,
-    recipeId: // a reference to a Recepie id,
-    text: "This is a great recepie",
-    createdAt: // timestamp
+### Install and Run
+
+```bash
+npm install
+npm run dev
+```
+
+Visit `http://localhost:3000`. The app will redirect visitors from `/` to `/home`, and signed-in users from `/` to `/feed`.
+
+### Production
+
+- Live site: [Epic Eats](https://epic-eats.vercel.app/)
+
+### Build and Start
+
+```bash
+npm run build
+npm start
+```
+
+## Key UX Behaviors
+
+- **Navbar visibility**: Hidden on `/home` only; visible elsewhere.
+- **Profile stats**: Inline within profile header info (no separate status cards).
+- **Search**: Top bar search in navbar (desktop + mobile), quick navigation to `/search`.
+
+## Testing
+
+```bash
+npm test
+```
+
+## Notes for Contributors
+
+- Follow the existing code style and Tailwind utility conventions.
+- Prefer server-side data fetching in the App Router where applicable.
+- Keep components client-only only when necessary (e.g., `use client`).
+
+## License
+
+This project is for educational use.
+
+## Architecture Overview
+
+- Client: Next.js App Router pages/components; client-only where interactive (e.g., chat, navbar search)
+- Server: Next API routes under `src/app/api/*` for auth, recipes, vector ops, and chat tooling
+- Data: MongoDB (Mongoose models in `Model/`), Cloudinary for images
+- AI: RAG + tool calling orchestrated in chat APIs; `@google/genai` for LLM, `@xenova/transformers` for local embeddings when applicable
+
+## Data Model
+
+High-level Mongoose schemas used by the app:
+
+```mermaid
+classDiagram
+  class User {
+    String username
+    String email
+    String password
+    String bio
+    String profilePic
+    ObjectId[] recipes
+    ObjectId[] savedRecipes
+    ObjectId[] followers
+    ObjectId[] following
   }
-  ```
 
-## [Link to Commented First Draft Schema](db.js) 
+  class Recipe {
+    ObjectId userId
+    String title
+    String[] ingredients
+    String description
+    String instructions
+    Comment[] comments
+    Date createdAt
+    String image
+    ObjectId[] likes
+    Number likesCount
+    Number[] embedding
+  }
 
-## Wireframes
+  class Comment {
+    ObjectId userId
+    ObjectId recipeId
+    String text
+    Date createdAt
+  }
 
+  class Chat {
+    ObjectId userId
+    Message[] data
+    String title
+    Date createdAt
+  }
 
-/feed
+  class Message {
+    enum sender(user|assistant|model)
+    String text
+  }
 
-![list create](./epic-eats/documentation/feed.png)
+  User "1" --> "*" Recipe : creates
+  User "1" --> "*" Comment : writes
+  User "1" --> "*" Chat : owns
+  Recipe "1" --> "*" Comment : has
+  User "*" --> "*" User : follows
+```
 
-/create - page for creating a new recepie
+### AI System (RAG + Tools)
 
-![list](./epic-eats/documentation/create.png)
+- Ingestion: Recipes and user content embedded; vectors stored and searched via vector API (`src/app/api/recipe/vector/route.js`)
+- Retrieval: Top-k relevant chunks retrieved at query time and injected into prompts
+- Tool calling: Model can call functions for operations like saving recipes, fetching user data, or searching recipes
+- Guardrails: Basic validation and content constraints enforced in API layers
 
-/saved - page for saved recepies
+## Deployment
 
-![list](./epic-eats/documentation/saved.png)
+- Recommended: Vercel for Next.js (connect repo, set env vars, deploy)
+- Required env vars: see Environment Variables section above
 
-/profile - page for profile page
+## Screenshots
 
-![list](./epic-eats/documentation/profile.png)
+Place screenshots in `documentation/` and reference them here:
 
-/register - page for registering
-![list](./epic-eats/documentation/register.png)
-
-/login - page for logging in
-![list](./epic-eats/documentation/login.png)
-
-/recepie - page for viewing a specific recepie
-![list](./epic-eats/documentation/recipe.png)
-
-/recipe/edit - page for editing a recepie
-![list](./epic-eats/documentation/edit.png)
-
-/search - page for searching users or recepies
-![list](./epic-eats/documentation/search.png)
-
-
-## User Stories or Use Cases
-
-
-1. as non-registered user, I can register a new account with the site
-2. as a user, I can log in to the site
-3. as a user, I can create a new recepie
-4. as a user, I can view all the recepies
-5. as a user, I can view a specific recepie
-6. as a user, I can save a recepie
-7. as a user, I can view my profile
-8. as a user, I can view my saved recepies
-9. as a user, I can view my created recepies
-10. as a user, I can view my followers
-11. as a user, I can view the users I am following
-12. as a user, I can follow other users
-13. as a user, I can comment on a recepie
-14. as a user, I can view all the comments on a recepie
-## Research Topics
-
-* (5 points) Integrate user authentication
-    * I used next-auth for user authentication and session management
-    * i used jwt for token based authentication
-    * I'm assigning this 5 points because it's an important part of the project
-* (3 points) Perfom validation on the server side
-    * I used Joi for validating changes to the database before saving
-* (3 points) Use a CSS framework throughout the site
-    * I used tailwindcss for styling
-* (3 points) External API for image upload
-    * I used cloudinary API for image upload
-* (5 points) Framework
-    * I used Next.js framework to serve both the front end and the backend
-* (3 points) API testing
-    * I used Jest for testing the API endpoints for the user and recipe routes
-
-22 points total
+![Landing](documentation/landing.png)
+![Feed](documentation/feed.png)
+![Create](documentation/create.png)
+![Profile](documentation/profile.png)
+![Chat](documentation/chat.png)
 
 
-
-
-
-## Annotations / References Used
-
-
-1. [next-auth docs](https://next-auth.js.org/getting-started/introduction)
-2. [next-auth guide](https://clerk.com/blog/complete-guide-session-management-nextjs)
-3. [jsonwebtoken docs](https://jwt.io/) 
-4. [cloudinary docs](https://cloudinary.com/documentation/upload_images)
-5. [cloudinary tutorial](https://youtu.be/ULp6-UjQA3o?si=5c2mX5SSjfORtKhb)
-6. [tailwindcss](https://tailwindcss.com/docs)
-7. [joi](https://joi.dev/api/?v=17.12.2)
-8. [bcrypt](https://www.npmjs.com/package/bcrypt)
-9. [next.js](https://nextjs.org/docs/getting-started)
-10. [next.js tutorial](https://youtu.be/NgayZAuTgwM?si=cklGzP7w6V53GBil)
-11. [jest](https://jestjs.io/docs/getting-started)
-12. [jest for Next](https://nextjs.org/docs/app/building-your-application/testing/jest)
