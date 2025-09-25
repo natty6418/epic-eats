@@ -160,11 +160,6 @@ export default function Feed() {
       .filter(Boolean);
     const passes = (recipe) => {
       // search terms
-      const matchesSearch = searchQuery
-        ? [recipe.title, recipe.description, recipe?.userId?.username]
-            .filter(Boolean)
-            .some((v) => v.toLowerCase().includes(searchQuery.toLowerCase()))
-        : true;
       // top-level filter chip
       const matchesFilter =
         activeFilter === "all" ||
@@ -178,10 +173,10 @@ export default function Feed() {
       const timeOK = maxCookTime > 0 ? (Number(recipe.cookTime) || 0) <= maxCookTime : true;
       // advanced: tags (any match)
       const tagsOK = tags.length ? (Array.isArray(recipe.tags) && recipe.tags.some(t => tags.includes(String(t).toLowerCase()))) : true;
-      return matchesSearch && matchesFilter && likesOK && timeOK && tagsOK;
+      return matchesFilter && likesOK && timeOK && tagsOK;
     };
     setFilteredRecipes(recipes.filter(passes));
-  }, [recipes, searchQuery, activeFilter, minLikes, maxCookTime, tagQuery]);
+  }, [recipes, activeFilter, minLikes, maxCookTime, tagQuery]);
 
   function goToSearch(e){
     e?.preventDefault?.();
