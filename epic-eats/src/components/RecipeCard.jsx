@@ -270,10 +270,7 @@ export default function RecipeCard({ recipe, currentUser, saved, setCurrentUser 
 							<ClockIcon className="w-3 h-3" />
 							<span className="text-xs font-medium">{recipe.cookTime || '30'} min</span>
 						</div>
-						<div className="flex items-center gap-1 bg-black/20 backdrop-blur-sm rounded-full px-2 py-1">
-							<StarIcon className="w-3 h-3" />
-							<span className="text-xs font-medium">{recipe.rating || '4.5'}</span>
-						</div>
+						
 					</div>
 				</div>
 			</div>

@@ -154,12 +154,7 @@ export default function ProfilePage({ params }) {
   }
 
   const totalLikes = myRecipes.reduce((total, recipe) => total + (recipe.likes?.length || 0), 0);
-  const totalCookTime = myRecipes.reduce((total, recipe) => total + parseInt(recipe.cookTime || 30), 0);
-  const joinedDate = new Date(user.createdAt);
-  const memberSince = isNaN(joinedDate.getTime())
-    ? 'Unknown'
-    : joinedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-
+  
   const tabs = [
     { name: 'Recipes', icon: BookOpenIcon, count: myRecipes.length },
     { name: 'Followers', icon: UsersIcon, count: followers.length },
@@ -223,47 +218,37 @@ export default function ProfilePage({ params }) {
                 {user.bio || 'No bio yet. This user hasn\'t shared anything about themselves.'}
               </p>
 
-              {/* Member Since */}
-              <div className="flex items-center gap-2 text-gray-500 text-sm">
-                <CalendarIcon className="w-4 h-4" />
-                <span>Member since {memberSince}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+              
 
-        {/* Stats Cards (compact horizontal) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card p-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center ring-1 ring-orange-200">
-                <BookOpenIcon className="w-4 h-4 text-white" />
-              </div>
-              <div className="leading-tight">
-                <div className="text-2xl font-semibold text-gray-800">{myRecipes.length}</div>
-                <div className="text-gray-600 text-xs">Recipes</div>
-              </div>
-            </div>
-          </div>
-          <div className="card p-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
-                <HeartSolidIcon className="w-4 h-4 text-white" />
-              </div>
-              <div className="leading-tight">
-                <div className="text-xl font-semibold text-gray-800">{totalLikes}</div>
-                <div className="text-gray-600 text-xs">Total Likes</div>
-              </div>
-            </div>
-          </div>
-          <div className="card p-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                <UsersIcon className="w-4 h-4 text-white" />
-              </div>
-              <div className="leading-tight">
-                <div className="text-xl font-semibold text-gray-800">{followers.length}</div>
-                <div className="text-gray-600 text-xs">Followers</div>
+              {/* Profile Stats */}
+              <div className="mt-6 grid grid-cols-3 gap-4">
+                <div className="flex items-center justify-center lg:justify-start gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center ring-1 ring-orange-200">
+                    <BookOpenIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="leading-tight">
+                    <div className="text-2xl font-semibold text-gray-800">{myRecipes.length}</div>
+                    <div className="text-gray-600 text-xs">Recipes</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center lg:justify-start gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <HeartSolidIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="leading-tight">
+                    <div className="text-xl font-semibold text-gray-800">{totalLikes}</div>
+                    <div className="text-gray-600 text-xs">Total Likes</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center lg:justify-start gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                    <UsersIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="leading-tight">
+                    <div className="text-xl font-semibold text-gray-800">{followers.length}</div>
+                    <div className="text-gray-600 text-xs">Followers</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

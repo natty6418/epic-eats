@@ -10,12 +10,7 @@ import {
 
 export default function ChatBox({ profilePic, onMessagesChange, initialMessages = null }) {
   const [userInput, setUserInput] = useState('');
-  const [messages, setMessages] = useState(initialMessages ?? [
-    {
-      text: "Hello! I'm your AI cooking assistant. I'm here to help you with recipes, cooking tips, ingredient substitutions, and any culinary questions you might have. What would you like to know?",
-      sender: 'model'
-    }
-  ]);
+  const [messages, setMessages] = useState(initialMessages);
   const [history, setHistory] = useState([]);
   useEffect(() => {
     if (initialMessages) {

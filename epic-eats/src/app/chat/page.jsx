@@ -10,7 +10,10 @@ import {
 export default function ChatPage() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [messages, setMessages] = useState([]);
+        const [messages, setMessages] = useState([{
+        text: "Hello! I'm your AI cooking assistant. I'm here to help you with recipes, cooking tips, ingredient substitutions, and any culinary questions you might have. What would you like to know?",
+        sender: 'assistant'
+    }]);
     const [lastSavedCount, setLastSavedCount] = useState(0);
     const [history, setHistory] = useState([]);
     const [activeChatId, setActiveChatId] = useState(null);
@@ -111,13 +114,17 @@ export default function ChatPage() {
 
                 {/* Chat Interface with History Sidebar */}
                 {/* Mobile controls */}
+                {/* Mobile controls */}
                 <div className="md:hidden mb-4 flex items-center justify-between gap-3">
                     <button
                         onClick={() => setShowHistoryMobile(v => !v)}
-                        className="px-3 py-2 text-sm rounded-md border border-orange-300 text-orange-700 bg-orange-50"
+                        className="flex-1 px-4 py-2.5 text-sm rounded-lg border border-orange-300 text-orange-700 bg-orange-50 flex items-center justify-center gap-2"
                         aria-expanded={showHistoryMobile}
                         aria-controls="mobile-history"
                     >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
                         {showHistoryMobile ? 'Hide History' : 'Show History'}
                     </button>
                     <button
@@ -129,9 +136,13 @@ export default function ChatPage() {
                             }];
                             setMessages(welcome);
                             setLastSavedCount(0);
+                            setShowHistoryMobile(false);
                         }}
-                        className="px-3 py-2 text-sm rounded-md bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+                        className="flex-1 px-4 py-2.5 text-sm rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600 flex items-center justify-center gap-2"
                     >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
                         New Chat
                     </button>
                 </div>
@@ -140,7 +151,7 @@ export default function ChatPage() {
                     {/* Sidebar (desktop) or collapsible (mobile) */}
                     <div className="md:col-span-1">
                         <div id="mobile-history" className={`card p-4 ${showHistoryMobile ? 'block' : 'hidden'} md:block md:h-[600px] overflow-auto`}>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="hidden md:flex items-center justify-between mb-3">
                             <h4 className="font-semibold text-gray-800">History</h4>
                             <button
                                 onClick={() => {
@@ -152,8 +163,11 @@ export default function ChatPage() {
                                     setMessages(welcome);
                                     setLastSavedCount(0);
                                 }}
-                                className="px-3 py-1 text-sm rounded-md bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+                                className="px-3 py-1.5 text-sm rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600 flex items-center gap-1.5"
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
                                 New Chat
                             </button>
                         </div>

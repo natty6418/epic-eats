@@ -51,9 +51,9 @@ const Navbar = () => {
   ];
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+    <header className="bg-white shadow-lg fixed top-0 left-0 right-0 w-full z-[10000] border-b border-gray-100 isolate h-16 md:h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+        <div className="flex justify-between items-center h-full">
           {/* Logo */}
           <div className="flex justify-start items-center">
             <Link href="/" className="flex items-center gap-2">
@@ -109,11 +109,9 @@ const Navbar = () => {
       {/* Mobile Navigation */}
       <div
         ref={navRef}
-        className={`md:hidden fixed top-0 right-0 w-72 h-full bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-40 ${
+        className={`md:hidden fixed top-16 md:top-20 right-0 w-72 h-[calc(100%-4rem)] md:h-[calc(100%-5rem)] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-[1500] ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-        style={{ top: '72px' }} // Start below the header
-      >
+        }`}>
         <div className="p-6">
           <form onSubmit={handleSubmit} className="relative mb-6">
             <input
@@ -134,7 +132,7 @@ const Navbar = () => {
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
                   link.isPrimary
-                    ? 'gradient-bg text-white shadow-lg'
+                    ? 'text-orange-600 hover:bg-orange-50'
                     : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
                 }`}
               >
