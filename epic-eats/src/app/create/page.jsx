@@ -342,27 +342,7 @@ function CreateRecipeForm() {
                 </ul>
               </div>
 
-              {/* Preview Card */}
-              <div className="card p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  <PhotoIcon className="w-5 h-5 text-orange-500" />
-                  Preview
-                </h3>
-                <div className="space-y-3">
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-600">Title:</span>
-                    <p className="text-gray-800">{title || "Your recipe title will appear here"}</p>
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-600">Ingredients:</span>
-                    <p className="text-gray-800">{ingredients.filter(i => i.trim()).length} item{ingredients.filter(i => i.trim()).length !== 1 ? 's' : ''}</p>
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-medium text-gray-600">Cook Time:</span>
-                    <p className="text-gray-800">{cookTime || '30'} minutes</p>
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>

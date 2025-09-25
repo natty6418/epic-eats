@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Loading from "@/components/Loading";
 import RecipeCard from "@/components/RecipeCard";
 import UserCard from "@/components/UserCard";
@@ -17,7 +17,8 @@ import {
   PencilIcon,
   ShareIcon,
   CalendarIcon,
-  TrophyIcon
+  TrophyIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { 
   HeartIcon as HeartSolidIcon,
@@ -194,6 +195,15 @@ export default function ProfilePage({ params }) {
                       <PencilIcon className="w-5 h-5" />
                       Edit Profile
                     </Link>
+                  ) : null}
+                  {isMyProfile ? (
+                    <button 
+                      onClick={() => signOut({ callbackUrl: '/home' })}
+                      className="px-4 py-2 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 inline-flex items-center gap-2"
+                    >
+                      <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                      Sign Out
+                    </button>
                   ) : (
                     <button 
                       onClick={isFollowing ? handleUnfollow : handleFollow}

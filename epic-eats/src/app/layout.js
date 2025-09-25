@@ -1,6 +1,7 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
 const NavBarWrapper = dynamic(() => import('@/components/NavBarWrapper'), { ssr: false })
+const MainWrapper = dynamic(() => import('@/components/MainWrapper'), { ssr: false })
 import Footer from '@/components/Footer'
 import AuthProvider from './context/AuthProvider'
 import './globals.css'
@@ -32,9 +33,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <div className="flex flex-col min-h-screen">
             <NavBarWrapper />
-            <main className="flex-1 pt-16 md:pt-20">
+            <MainWrapper>
               {children}
-            </main>
+            </MainWrapper>
             <Footer />
           </div>
         </AuthProvider>
